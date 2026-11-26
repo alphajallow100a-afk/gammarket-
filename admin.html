@@ -1,0 +1,234 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GamMarket - Admin Portal</title>
+<style>
+*{box-sizing:border-box;margin:0;font-family:Arial,sans-serif}body{background:#1a1a22;color:#fff;display:flex;min-height:100vh}
+aside{width:230px;background:#14141c;padding:16px;flex-shrink:0;display:flex;flex-direction:column;position:fixed;left:0;top:0;height:100vh;z-index:100;transition:.3s}
+.logo{font-size:26px;font-weight:800}.logo span{color:#ff8a2a}.sub{color:#aaa;font-size:13px;margin-left:34px;margin-bottom:20px}
+nav a{display:block;padding:12px;border-radius:10px;color:#ddd;text-decoration:none;margin-top:4px;cursor:pointer}
+nav a.active,nav a:hover{background:#ff8a2a;color:#fff}
+.logout{margin-top:auto;border-top:1px solid #333;padding-top:14px}.logout a{display:block;padding:12px;border-radius:10px;color:#ff6b6b;text-decoration:none;background:#2a1a1a;text-align:center;font-weight:700;cursor:pointer}
+main{flex:1;padding:20px;margin-left:230px;overflow:auto}.top{display:flex;justify-content:space-between;align-items:center;gap:10px}.menuBtn{display:none;font-size:26px;background:none;border:0;color:#fff;cursor:pointer}
+.bell{position:relative;background:#2a2a35;width:42px;height:42px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;margin-right:10px}
+.badge{position:absolute;top:-2px;right:-2px;background:#ff3b30;color:#fff;font-size:11px;width:20px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.btn{border:0;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:700}.btn-orange{background:#ff8a2a;color:#fff}.btn-dark{background:#2a2a35;color:#fff}.btn-green{background:#22c55e;color:#fff}.btn-red{background:#ef4444;color:#fff}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:16px 0}.card{background:#22222e;border-radius:16px;padding:16px}.card b{font-size:26px;display:block;margin-top:8px}.green{color:#4ade80;font-size:12px}.orange{color:#ffb86b;font-size:12px}
+.row{display:grid;grid-template-columns:1.2fr 1fr;gap:14px;margin-bottom:14px}
+table{width:100%;border-collapse:collapse;font-size:13px}th{color:#aaa;text-align:left;padding:10px}td{padding:10px;border-top:1px solid #333}
+.pill{padding:4px 8px;border-radius:20px;font-size:11px;font-weight:700}.ok{background:#2e5a3a}.pend{background:#6b4a1f}.proc{background:#2e4a6b}
+.item{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid #333;gap:10px;flex-wrap:wrap}
+.item button{padding:7px 10px;border-radius:8px;cursor:pointer;margin-left:5px;border:1px solid #444;background:#333;color:#fff}
+input,select{padding:11px;border-radius:10px;border:1px solid #444;background:#111;color:#fff;width:100%;margin:6px 0}
+.page{display:none}.page.show{display:block}
+#gate{position:fixed;inset:0;background:#111118;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+.gate-box{background:#22222e;padding:28px;border-radius:18px;width:100%;max-width:380px;text-align:center}.gate-box input{margin:14px 0}.gate-box button{width:100%;padding:13px;border:0;border-radius:10px;background:#ff8a2a;color:#fff;font-weight:800;font-size:16px;cursor:pointer}
+#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:90}
+#notif{position:fixed;top:60px;right:16px;width:300px;max-width:90vw;background:#22222e;border-radius:14px;padding:14px;z-index:200;display:none;box-shadow:0 10px 30px #000}
+@media(max-width:800px){aside{transform:translateX(-110%)}aside.open{transform:none}#overlay.show{display:block}main{margin-left:0;padding:14px}.menuBtn{display:block}.grid{grid-template-columns:1fr 1fr}.row{grid-template-columns:1fr}}
+</style></head><body>
+<div id="gate"><div class="gate-box"><div style="font-size:36px">🛒</div><h2>GamMarket</h2><p style="color:#aaa">Admin Portal • Locked</p><input type="password" id="pw" placeholder="Enter Admin Password" onkeydown="if(event.key==='Enter')unlock()"><button onclick="unlock()">Unlock</button><p id="pwErr" style="color:#ff6b6b;margin-top:10px;display:none">Wrong password.</p></div></div>
+<div id="overlay" onclick="toggleMenu(false)"></div>
+<div id="notif"><b>🔔 Notifications</b><div id="notifList" style="margin-top:10px;font-size:13px"></div><button class="btn btn-dark" style="width:100%;margin-top:10px" onclick="clearNotif()">Mark all as read</button></div>
+<aside id="sidebar"><div style="display:flex;justify-content:space-between"><div class="logo">🛒 Gam<span>Market</span></div><button onclick="toggleMenu(false)" style="background:none;border:0;color:#fff;font-size:22px">✕</button></div><div class="sub">Admin Portal</div>
+<nav id="nav">
+<a class="active" onclick="showPage('dashboard',this)">📊 Dashboard</a>
+<a onclick="showPage('deposits',this)">💰 Deposits <span style="float:right;background:#22c55e;padding:2px 8px;border-radius:10px;font-size:12px" id="depositCount">0</span></a>
+<a onclick="showPage('withdrawals',this)">💸 Withdrawals <span style="float:right;background:#ef4444;padding:2px 8px;border-radius:10px;font-size:12px" id="withdrawCount">0</span></a>
+<a onclick="showPage('marketplace',this)">🏪 Marketplace</a>
+<a onclick="showPage('orders',this)">📦 Orders <span style="float:right;background:#ff8a2a;padding:2px 8px;border-radius:10px;font-size:12px" id="orderCount">0</span></a>
+<a onclick="showPage('merchants',this)">👥 Merchants</a>
+<a onclick="showPage('payouts',this)">💳 Payouts</a>
+<a onclick="showPage('escrow',this)">🛡️ Escrow</a>
+<a onclick="showPage('analytics',this)">📈 Analytics</a>
+<a onclick="showPage('settings',this)">⚙️ Settings</a>
+<a onclick="showPage('help',this)">🆘 Help & Docs</a>
+</nav><div class="logout"><a onclick="logout()">🚪 Logout</a></div></aside>
+<main>
+<div class="top"><div style="display:flex;align-items:center;gap:10px"><button class="menuBtn" onclick="toggleMenu(true)">☰</button><h1 id="pageTitle">Dashboard</h1></div><div style="display:flex;align-items:center"><span class="bell" onclick="toggleNotif()">🔔<span class="badge" id="bellCount">0</span></span><span>👤 Admin ▾</span></div></div>
+<p style="color:#aaa;font-size:12px" id="upd"></p>
+<div id="page-dashboard" class="page show">
+<div style="margin:12px 0"><button class="btn btn-dark" onclick="exportCSV()">Export CSV ⬇</button> <button class="btn btn-orange" onclick="sendPayout()">+ Send Payout</button> <button class="btn btn-green" onclick="runAutoDeduct()">🔄 Run Auto-Deduct Now</button></div>
+<div class="grid"><div class="card">📊 Total Sales GMD<b id="sales">GMD 0</b><span class="green">Real sales from orders</span></div><div class="card">💰 Total Earnings GMD<b id="earn">GMD 0</b><span class="orange">Subscription + Withdrawal fees</span></div><div class="card">🛡️ Pending Escrow<b id="escrow">GMD 0</b><span class="orange" id="escCount">0 awaiting</span></div><div class="card">👥 Active Merchants<b id="merch">0</b><span class="green" id="merchTrend">Real merchants</span></div></div>
+<div class="grid"><div class="card">📅 Subscription Earned<b id="subEarn">GMD 0</b><span class="green">D300 first 2 months, then D1000/mo - Auto-deducted</span></div><div class="card">💸 Withdrawal Fees Earned<b id="wdFeeEarn">GMD 0</b><span class="orange">1% - D4 per D400 - Min Withdraw D400</span></div><div class="card">💳 Withdrawals Total<b id="wdTotalAmt">GMD 0</b><span class="orange" id="wdCount">0 withdrawals</span></div><div class="card">⏳ Overdue Subscriptions<b id="overdueCount">0</b><span class="orange">Need to deposit</span></div></div>
+<div class="row"><div class="card"><b>Withdrawals</b><canvas id="chart" width="600" height="200" style="width:100%;margin-top:12px"></canvas><div class="orange">● Withdrawals<br><span id="wdTotal"></span></div></div><div class="card"><b>Merchant Approvals</b><div class="orange" id="pendCount"></div><div id="approvals"></div></div></div>
+<div class="card"><b style="font-size:20px">Recent Transactions</b><table><tr><th>ID</th><th>BUYER</th><th>MERCHANT</th><th>AMOUNT</th><th>STATUS</th><th>DATE</th></tr><tbody id="tx"></tbody></table></div>
+</div>
+<div id="page-deposits" class="page"><div class="card"><b>💰 Deposit Requests - Min D400 via Wave</b><p style="color:#aaa;font-size:13px;margin-top:6px">How to confirm: 1. Open your Wave app → Check if money arrived to <b style="color:#fff" id="waveDisplay1">+220877859091</b> (GamMarket). 2. Match Transaction ID. 3. Tap ✅ Approve → Wallet increases automatically. If no money, tap ❌ Reject.</p><div id="depositList"></div></div><div class="card" style="margin-top:12px"><b>Deposit History</b><div id="depositHistory"></div></div></div>
+<div id="page-withdrawals" class="page"><div class="card"><b>💸 Withdrawal Requests - Min D400 - Fee 1%</b><p style="color:#aaa;font-size:13px;margin-top:6px">How to confirm: 1. User requests D400 → Fee D4 → You send <b style="color:#fff">D396</b> via Wave to their phone. 2. Tap ✅ Paid via Wave → Done. Fee already counted in your earnings. Wallet deducted on Paid.</p><div id="withdrawList"></div></div><div class="card" style="margin-top:12px"><b>Withdrawal History</b><div id="withdrawHistory"></div></div></div>
+<div id="page-marketplace" class="page"><div class="card"><b>Marketplace Products</b><p style="color:#aaa;font-size:13px">Real products from Supabase + local. Delete removes it from the shop.</p><div id="prodList"></div></div></div>
+<div id="page-orders" class="page"><div class="card"><b>All Orders</b><div id="orderList"></div></div></div>
+<div id="page-merchants" class="page"><div class="card"><b>All Merchants</b><div style="display:flex;gap:8px;margin-top:10px"><input id="newMerch" placeholder="Add merchant name, e.g. TechHub Banjul"><button class="btn btn-orange" onclick="addMerchant()">+ Add</button></div><div id="merchList"></div></div></div>
+<div id="page-payouts" class="page"><div class="card"><b>Payouts</b><input id="payoutName" placeholder="Merchant name"><input id="payoutAmt" type="number" placeholder="Amount GMD"><input id="payoutMethod" placeholder="Method: Wave / Orange Money / Bank"><button class="btn btn-orange" onclick="doPayout()">Send Payout</button><div id="payoutList"></div></div></div>
+<div id="page-escrow" class="page"><div class="card"><b>Escrow - Money Held</b><p style="color:#aaa;font-size:13px">Money is held until buyer confirms. Release pays 100% to merchant. GamMarket takes 0% from escrow.</p><div id="escrowList"></div></div></div>
+<div id="page-analytics" class="page"><div class="card"><b>Analytics</b><p>Total Orders: <b id="aOrders">0</b> • Total Products: <b id="aProds">0</b> • Avg Order: <b id="aAvg">GMD 0</b></p><p style="margin-top:8px">Subscription Earned: <b id="aSub">GMD 0</b> • Withdrawal Fees: <b id="aWdFee">GMD 0</b> • Total Earnings: <b id="aTotalEarn">GMD 0</b></p><canvas id="chart2" width="600" height="200" style="width:100%;margin-top:12px"></canvas></div></div>
+<div id="page-settings" class="page"><div class="card"><b>Settings - GamMarket Earning Rules (Fixed)</b><p style="color:#aaa;line-height:1.7;margin-top:8px">Monthly Subscription: First 2 months <b style="color:#fff">D300 / month</b>, then <b style="color:#fff">D1000 / month</b> afterwards - Auto-deducted from merchant wallet.<br>Min Deposit: <b style="color:#fff">D400 via Wave +220877859091</b> - Admin must approve Transaction ID before wallet increases.<br>Min Withdraw: <b style="color:#fff">D400</b><br>Withdrawal Fee: <b style="color:#fff">1%</b> - D4 per D400 - Auto-deducted from withdrawal.<br>Escrow: <b style="color:#fff">100% to merchant, 0% to platform.</b><br><br>To change Wave number later: Edit ONE line at top of code: <b style="color:#fff">const WAVE_NUMBER = "+220877859091"</b></p><label style="color:#aaa">New Admin Password</label><input id="newPw" placeholder="Leave empty to keep current"><button class="btn btn-orange" onclick="saveSettings()">Save Settings</button><p id="setMsg" style="color:#4ade80;margin-top:10px"></p></div></div>
+<div id="page-help" class="page"><div class="card"><b>Help & Docs</b><p style="margin-top:10px;line-height:1.7">1. <b>Approve Merchant:</b> Go to Merchants → Approve.<br>2. <b>Release Escrow:</b> Go to Escrow → Release. Pays 100% to merchant.<br>3. <b>Payout:</b> Go to Payouts → Enter amount → Send.<br>4. <b>Delete Product:</b> Marketplace → Delete.<br>5. <b>Change Order Status:</b> Orders → Mark Shipped / Completed.<br>6. <b>Auto-Deduct:</b> Subscription D300 first 2 months, then D1000 auto-deducts from merchant wallet when due. Withdrawal 1% auto-deducts on every withdrawal. Tap "Run Auto-Deduct Now" to force it.<br>7. <b>Confirm Deposit (NEW):</b> Go to Deposits → Check your Wave app for money to +220877859091 → Match Tx ID → Tap ✅ Approve. Wallet increases only after you approve. Min D400.<br>8. <b>Confirm Withdrawal (NEW):</b> Go to Withdrawals → Send (Amount - 1% fee) via Wave to user's phone → Tap ✅ Paid via Wave. Wallet deducted on Paid. Example: Request D400 → Send D396. Min D400.<br><br>Support: GamMarket Support in app</p></div></div>
+</main>
+<script>
+let ADMIN_PASSWORD=localStorage.getItem('gm_admin_pw')||"GamMarket@2026!Admin";
+const SUPABASE_URL="https://tfnhgzblgtmlsejukebw.supabase.co";
+const SUPABASE_KEY="sb_publishable_uJcmKF7oV1Tw57AFP_4wig_MtFVk8Bz";
+const WAVE_NUMBER="+220877859091";
+const MIN_DEPOSIT=400;
+const MIN_WITHDRAW=400;
+const FIRST_FEE=300, MONTHLY_FEE=1000;
+function get(k,d){try{return JSON.parse(localStorage.getItem(k)||JSON.stringify(d))}catch(e){return d}}
+function set(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function toggleMenu(o){document.getElementById('sidebar').classList.toggle('open',o);document.getElementById('overlay').classList.toggle('show',o)}
+function toggleNotif(){let n=document.getElementById('notif');n.style.display=n.style.display==='block'?'none':'block'}
+function clearNotif(){document.getElementById('bellCount').textContent='0';document.getElementById('notifList').innerHTML='No new notifications';}
+function unlock(){if(document.getElementById('pw').value===ADMIN_PASSWORD){document.getElementById('gate').style.display='none';sessionStorage.setItem('gm_admin','yes');load()}else document.getElementById('pwErr').style.display='block'}
+function logout(){sessionStorage.removeItem('gm_admin');location.reload()}
+if(sessionStorage.getItem('gm_admin')==='yes')document.getElementById('gate').style.display='none';
+function showPage(id,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'));document.getElementById('page-'+id).classList.add('show');document.querySelectorAll('#nav a').forEach(a=>a.classList.remove('active'));if(el)el.classList.add('active');document.getElementById('pageTitle').textContent=el?el.textContent.trim().replace(/\d+/,'').trim():id;toggleMenu(false);renderAll()}
+function fmt(n){return "GMD "+Number(n||0).toLocaleString()}
+function draw(c,vals){let x=c.getContext('2d');x.clearRect(0,0,600,200);x.strokeStyle="#ff8a2a";x.lineWidth=2;x.beginPath();vals.forEach((v,i)=>{let px=20+i*85,py=180-Math.min(160,(v||0)/100);i?x.lineTo(px,py):x.moveTo(px,py)});x.stroke()}
+function purgeDemo(){
+  try{
+    let orders=get('gm_orders',[]); let o2=orders.filter(o=>!["#TRX-90284","#TRX-90283","#TRX-90282"].includes(o.id) && !["Isatou J.","Momodou K.","Fatou B."].includes(o.buyer));
+    if(o2.length!==orders.length) set('gm_orders',o2);
+    let users=get('gm_users',[]); let u2=users.filter(u=>!["TechHub Banjul","StyleCo Gambia","FarmFresh GMD"].includes(u.name));
+    if(u2.length!==users.length) set('gm_users',u2);
+    let prods=get('gm_products',[]); let p2=prods.filter(p=>!["iPhone 13","Jollof Rice Pack","Ankara Dress"].includes(p.name||p.title));
+    if(p2.length!==prods.length) set('gm_products',p2);
+    if(localStorage.getItem('gm_fee')) localStorage.removeItem('gm_fee');
+  }catch(e){}
+}
+function getDueFee(u){let c=u.createdAt||u.joinedAt||u.created_at||Date.now();let age=Math.floor((Date.now()-new Date(c).getTime())/86400000);if(age<=60) return FIRST_FEE; return MONTHLY_FEE;}
+function runAutoDeduct(){
+  purgeDemo();
+  let users=get('gm_users',[]); let earnings=get('gm_earnings',[]); let subs=get('gm_subscriptions',[]); let changed=false;
+  users.forEach(u=>{
+    if(!u.phone) return;
+    let last=u.lastPaid||u.last_paid||u.createdAt||u.joinedAt||u.created_at||Date.now();
+    let days=Math.floor((Date.now()-new Date(last).getTime())/86400000);
+    if(days>=30){
+      let due=getDueFee(u);
+      if((u.wallet||0)>=due){
+        u.wallet-=due; u.lastPaid=Date.now(); u.last_paid=Date.now(); u.hasPaidBefore=true; u.totalPaid=(u.totalPaid||0)+due;
+        subs.push({phone:u.phone,name:u.name||u.phone,amount:due,type:'subscription',date:Date.now(),auto:true});
+        earnings.push({type:'subscription',phone:u.phone,amount:due,date:Date.now()});
+        changed=true;
+      }
+    }
+  });
+  if(changed){ set('gm_users',users); set('gm_earnings',earnings); set('gm_subscriptions',subs); alert('Auto-deduct done! Subscriptions collected from wallets.'); }
+  else { alert('No subscriptions due now, or wallets too low.'); }
+  renderAll();
+}
+async function load(){
+  purgeDemo();
+  let products=get('gm_products',[]),users=get('gm_users',[]),orders=get('gm_orders',[]);
+  try{let r=await fetch(SUPABASE_URL+"/rest/v1/products?select=*",{headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY}}); if(r.ok){let d=await r.json(); if(d.length) products=d;}}catch(e){}
+  set('gm_products',products);
+  try{ let users2=get('gm_users',[]); let earnings=get('gm_earnings',[]); let subs=get('gm_subscriptions',[]); let changed=false; users2.forEach(u=>{ if(!u.phone) return; let last=u.lastPaid||u.last_paid||u.createdAt||u.joinedAt||u.created_at||Date.now(); let days=Math.floor((Date.now()-new Date(last).getTime())/86400000); if(days>=30){ let due=getDueFee(u); if((u.wallet||0)>=due){ u.wallet-=due; u.lastPaid=Date.now(); u.last_paid=Date.now(); u.hasPaidBefore=true; u.totalPaid=(u.totalPaid||0)+due; subs.push({phone:u.phone,name:u.name||u.phone,amount:due,type:'subscription',date:Date.now(),auto:true}); earnings.push({type:'subscription',phone:u.phone,amount:due,date:Date.now()}); changed=true; } } }); if(changed){ set('gm_users',users2); set('gm_earnings',earnings); set('gm_subscriptions',subs); } }catch(e){}
+  renderAll();
+}
+function approveDeposit(i){
+  let reqs=get('gm_deposit_requests',[]);
+  let r=reqs[i]; if(!r) return;
+  if(!confirm('Check Wave app: Did D'+r.amount+' from '+r.phone+' (Tx: '+r.txId+') arrive to '+WAVE_NUMBER+'?\nTap OK only if YES.')) return;
+  let users=get('gm_users',[]);
+  let idx=users.findIndex(u=>u.phone===r.phone);
+  if(idx>=0){ users[idx].wallet=(users[idx].wallet||0)+Number(r.amount); set('gm_users',users); }
+  else { users.push({phone:r.phone,name:r.name||r.phone,wallet:Number(r.amount),verified:false,createdAt:Date.now()}); set('gm_users',users); }
+  try{ let cur=JSON.parse(localStorage.getItem('gm_currentUser')||'null'); if(cur && cur.phone===r.phone){ cur.wallet=(cur.wallet||0)+Number(r.amount); localStorage.setItem('gm_currentUser',JSON.stringify(cur)); } }catch(e){}
+  r.status='approved'; r.approvedAt=Date.now(); reqs[i]=r; set('gm_deposit_requests',reqs);
+  alert('✅ Approved! D'+r.amount+' added to '+r.phone+' wallet.');
+  renderAll();
+}
+function rejectDeposit(i){
+  if(!confirm('Reject this deposit? Wallet will NOT increase.')) return;
+  let reqs=get('gm_deposit_requests',[]); reqs[i].status='rejected'; reqs[i].rejectedAt=Date.now(); set('gm_deposit_requests',reqs); renderAll();
+}
+function approveWithdraw(i){
+  let reqs=get('gm_withdraw_requests',[]);
+  let r=reqs[i]; if(!r) return;
+  let fee=Math.ceil(Number(r.amount)*0.01); let send=Number(r.amount)-fee;
+  if(!confirm('Have you sent D'+send+' via Wave to '+r.phone+'?\nRequest: D'+r.amount+' - Fee D'+fee+' = Send D'+send+'\nTap OK only if you sent it.')) return;
+  if(!r.walletDeducted){
+    let users=get('gm_users',[]);
+    let idx=users.findIndex(u=>u.phone===r.phone);
+    if(idx>=0){ users[idx].wallet=Math.max(0,(users[idx].wallet||0)-Number(r.amount)); set('gm_users',users); }
+    try{ let cur=JSON.parse(localStorage.getItem('gm_currentUser')||'null'); if(cur && cur.phone===r.phone){ cur.wallet=Math.max(0,(cur.wallet||0)-Number(r.amount)); localStorage.setItem('gm_currentUser',JSON.stringify(cur)); } }catch(e){}
+    r.walletDeducted=true;
+  }
+  r.status='paid'; r.paidAt=Date.now(); reqs[i]=r; set('gm_withdraw_requests',reqs);
+  let earnings=get('gm_earnings',[]); earnings.push({type:'withdrawal_fee',phone:r.phone,amount:fee,date:Date.now()}); set('gm_earnings',earnings);
+  alert('✅ Marked as Paid! D'+send+' sent to '+r.phone+'. Fee D'+fee+' earned. Wallet deducted D'+r.amount+'.');
+  renderAll();
+}
+function rejectWithdraw(i){
+  if(!confirm('Reject this withdrawal? Wallet will NOT be deducted (new flow).')) return;
+  let reqs=get('gm_withdraw_requests',[]); let r=reqs[i];
+  if(r.walletDeducted){
+    let users=get('gm_users',[]); let idx=users.findIndex(u=>u.phone===r.phone);
+    if(idx>=0){ users[idx].wallet=(users[idx].wallet||0)+Number(r.amount); set('gm_users',users); }
+  }
+  r.status='rejected'; r.rejectedAt=Date.now(); reqs[i]=r; set('gm_withdraw_requests',reqs); renderAll();
+}
+function markOldWithdrawPaid(i){
+  let wds=get('gm_withdrawals',[]); let w=wds[i]; if(!w) return;
+  let fee=Math.ceil(Number(w.amount)*0.01); let send=Number(w.amount)-fee;
+  if(!confirm('Have you sent D'+send+' via Wave to '+(w.phone||w.name||'user')+'?')) return;
+  w.status='paid'; w.paidAt=Date.now(); set('gm_withdrawals',wds); alert('✅ Marked Paid!'); renderAll();
+}
+function renderAll(){
+  purgeDemo();
+  let products=get('gm_products',[]),users=get('gm_users',[]),orders=get('gm_orders',[]),payouts=get('gm_payouts',[]);
+  let earnings=get('gm_earnings',[]); let withdrawals=get('gm_withdrawals',[]);
+  let deposits=get('gm_deposit_requests',[]); let wdReqs=get('gm_withdraw_requests',[]);
+  let pendDep=deposits.filter(d=>!d.status||d.status==='pending');
+  let pendWd=wdReqs.filter(w=>!w.status||w.status==='pending');
+  let subEarn=earnings.filter(e=>e.type==='subscription').reduce((s,e)=>s+Number(e.amount||0),0);
+  let wdFeeEarn=earnings.filter(e=>e.type==='withdrawal_fee').reduce((s,e)=>s+Number(e.amount||0),0);
+  if(!wdFeeEarn && withdrawals.length) wdFeeEarn=withdrawals.reduce((s,w)=>s+Number(w.fee||0),0);
+  let totalEarn=subEarn+wdFeeEarn;
+  let sales=orders.reduce((s,o)=>s+Number(o.amount||o.price||0),0);
+  let esc=orders.filter(o=>String(o.status).includes("Escrow")||String(o.status).includes("escrow")); let escAmt=esc.reduce((s,o)=>s+Number(o.amount||o.price||0),0);
+  let wdTotal=withdrawals.reduce((s,w)=>s+Number(w.amount||0),0)+wdReqs.reduce((s,w)=>s+Number(w.amount||0),0);
+  let overdue=users.filter(u=>{ let last=u.lastPaid||u.last_paid||u.createdAt||u.joinedAt||u.created_at||Date.now(); return Math.floor((Date.now()-new Date(last).getTime())/86400000)>=30 && (u.wallet||0)<getDueFee(u); }).length;
+  document.getElementById('sales').textContent=fmt(sales); document.getElementById('earn').textContent=fmt(totalEarn);
+  document.getElementById('subEarn').textContent=fmt(subEarn); document.getElementById('wdFeeEarn').textContent=fmt(wdFeeEarn);
+  document.getElementById('wdTotalAmt').textContent=fmt(wdTotal); document.getElementById('wdCount').textContent=(withdrawals.length+wdReqs.length)+" withdrawals";
+  document.getElementById('overdueCount').textContent=overdue;
+  document.getElementById('escrow').textContent=fmt(escAmt); document.getElementById('escCount').textContent=esc.length+" awaiting release";
+  document.getElementById('merch').textContent=users.length; document.getElementById('merchTrend').textContent=users.filter(u=>u.verified||u.is_verified).length+" verified • "+users.filter(u=>!u.verified&&!u.is_verified).length+" pending";
+  document.getElementById('upd').textContent="Last updated: "+new Date().toLocaleString(); document.getElementById('orderCount').textContent=orders.length;
+  document.getElementById('depositCount').textContent=pendDep.length; document.getElementById('withdrawCount').textContent=pendWd.length;
+  let wD1=document.getElementById('waveDisplay1'); if(wD1) wD1.textContent=WAVE_NUMBER;
+  document.getElementById('aOrders').textContent=orders.length; document.getElementById('aProds').textContent=products.length; document.getElementById('aAvg').textContent=fmt(orders.length?Math.round(sales/orders.length):0);
+  document.getElementById('aSub').textContent=fmt(subEarn); document.getElementById('aWdFee').textContent=fmt(wdFeeEarn); document.getElementById('aTotalEarn').textContent=fmt(totalEarn);
+  document.getElementById('bellCount').textContent=esc.length+users.filter(u=>!u.verified&&!u.is_verified).length+pendDep.length+pendWd.length;
+  document.getElementById('notifList').innerHTML=`• ${pendDep.length} deposit requests pending<br>• ${pendWd.length} withdrawal requests pending<br>• ${esc.length} escrow awaiting release<br>• ${users.filter(u=>!u.verified&&!u.is_verified).length} merchants pending approval<br>• ${orders.length} total orders<br>• ${overdue} overdue subscriptions`;
+  let pend=users.filter(u=>!u.verified&&!u.is_verified); document.getElementById('pendCount').textContent="Pending review: "+pend.length;
+  document.getElementById('approvals').innerHTML=pend.slice(0,3).map((u,i)=>`<div class="item"><div><b>${u.name||u.phone}</b><br><span style="color:#aaa;font-size:12px">${u.cat||u.phone||"General"}</span></div><div><button style="border:1px solid #4ade80;color:#4ade80" onclick="approveMerchant('${u.phone||u.name}')">Approve</button><button style="border:1px solid #ff6b6b;color:#ff6b6b" onclick="rejectMerchant('${u.phone||u.name}')">Reject</button></div></div>`).join("")||"No pending";
+  document.getElementById('tx').innerHTML=orders.slice(-4).map(t=>`<tr><td>${t.id||''}</td><td>${t.buyerName||t.buyer||''}</td><td>${t.sellerName||t.merchant||t.seller||''}</td><td>${fmt(t.amount||t.price||0)}</td><td><span class="pill ${String(t.status).includes("Completed")||String(t.status).includes("completed")?"ok":String(t.status).includes("Escrow")?"pend":"proc"}">${t.status}</span></td><td>${t.created?new Date(t.created).toLocaleDateString():new Date().toLocaleDateString()}</td></tr>`).join("")||"<tr><td colspan='6'>No real orders yet</td></tr>";
+  document.getElementById('prodList').innerHTML=products.map((p,i)=>`<div class="item"><div><b>${p.name||p.title||"Product"}</b><br><span style="color:#aaa">${fmt(p.price)}</span></div><div><button onclick="featureProd(${i})">⭐ Feature</button><button style="border-color:#ff6b6b;color:#ff6b6b" onclick="deleteProd(${i})">Delete</button></div></div>`).join("")||"No products";
+  document.getElementById('orderList').innerHTML=orders.map((o,i)=>`<div class="item"><div><b>${o.id}</b> - ${o.buyerName||o.buyer} → ${o.sellerName||o.seller||o.merchant}<br>${fmt(o.amount||o.price)} • <span class="pill ${String(o.status).includes("Completed")||String(o.status).includes("completed")?"ok":String(o.status).includes("Escrow")?"pend":"proc"}">${o.status}</span></div><div><button onclick="setOrder(${i},'Processing')">Processing</button><button onclick="setOrder(${i},'Shipped')">Shipped</button><button style="border-color:#4ade80;color:#4ade80" onclick="setOrder(${i},'Completed')">Completed</button></div></div>`).join("")||"No orders yet";
+  document.getElementById('merchList').innerHTML=users.map((u,i)=>`<div class="item"><div><b>${u.name||u.phone}</b><br>${(u.verified||u.is_verified)?"✅ Verified":"⏳ Pending"} • ${u.cat||u.phone||""} • Wallet ${fmt(u.wallet||0)} • Due ${fmt(getDueFee(u))}</div><div>${(u.verified||u.is_verified)?`<button onclick="blockMerchant(${i})">Block</button>`:`<button style="border-color:#4ade80;color:#4ade80" onclick="approveMerchant('${u.phone||u.name}')">Approve</button>`}<button style="border-color:#ff6b6b;color:#ff6b6b" onclick="rejectMerchant('${u.phone||u.name}')">Remove</button></div></div>`).join("")||"No merchants yet";
+  document.getElementById('escrowList').innerHTML=esc.map((o,i)=>`<div class="item"><div><b>${o.id}</b> - ${o.buyerName||o.buyer} → ${o.sellerName||o.seller||o.merchant}<br>${fmt(o.amount||o.price)} • Held for buyer confirmation - 100% to merchant on release</div><button style="border-color:#4ade80;color:#4ade80" onclick="releaseEscrow('${o.id}')">Release to Merchant (100%)</button></div>`).join("")||"No escrow held";
+  document.getElementById('payoutList').innerHTML=payouts.map(p=>`<div class="item"><div><b>${p.name}</b> - ${fmt(p.amount)} • ${p.method} • ${p.date}</div><span class="pill ok">Sent</span></div>`).join("")||"No payouts yet";
+  document.getElementById('depositList').innerHTML=pendDep.map((d,idx)=>{ let realIdx=deposits.indexOf(d); let dt=d.time?new Date(d.time).toLocaleString():'-'; return `<div class="item"><div><b>${d.name||d.phone}</b> - ${d.phone}<br>Amount: <b style="color:#4ade80">${fmt(d.amount)}</b> • Tx ID: <b>${d.txId||'-'}</b><br><span style="color:#aaa;font-size:12px">To Wave ${WAVE_NUMBER} • ${dt} • Min D${MIN_DEPOSIT}</span></div><div><button style="border-color:#4ade80;color:#4ade80" onclick="approveDeposit(${realIdx})">✅ Approve</button><button style="border-color:#ff6b6b;color:#ff6b6b" onclick="rejectDeposit(${realIdx})">❌ Reject</button></div></div>`; }).join("")||"No pending deposits - All clear ✅";
+  document.getElementById('depositHistory').innerHTML=deposits.filter(d=>d.status&&d.status!=='pending').slice(-10).reverse().map(d=>`<div class="item"><div><b>${d.name||d.phone}</b> - ${fmt(d.amount)} • Tx ${d.txId||'-'} • <span class="pill ${d.status==='approved'?'ok':'pend'}">${d.status}</span></div><span style="color:#aaa;font-size:12px">${d.approvedAt?new Date(d.approvedAt).toLocaleDateString():''}</span></div>`).join("")||"No history yet";
+  let wdHtml=pendWd.map((w,idx)=>{ let realIdx=wdReqs.indexOf(w); let fee=Math.ceil(Number(w.amount)*0.01); let send=Number(w.amount)-fee; return `<div class="item"><div><b>${w.name||w.phone}</b> - ${w.phone}<br>Request: <b>${fmt(w.amount)}</b> - Fee D${fee} = <b style="color:#ffb86b">Send D${send} via Wave</b><br><span style="color:#aaa;font-size:12px">Min D${MIN_WITHDRAW} • ${w.time?new Date(w.time).toLocaleString():''}</span></div><div><button style="border-color:#4ade80;color:#4ade80" onclick="approveWithdraw(${realIdx})">✅ Paid via Wave</button><button style="border-color:#ff6b6b;color:#ff6b6b" onclick="rejectWithdraw(${realIdx})">❌ Reject</button></div></div>`; }).join("");
+  let oldHtml=withdrawals.filter(w=>!w.status||w.status==='pending').map((w,i)=>{ let realIdx=withdrawals.indexOf(w); let fee=Math.ceil(Number(w.amount)*0.01); let send=Number(w.amount)-fee; return `<div class="item"><div><b>${w.name||w.phone||'User'}</b><br>Old request: ${fmt(w.amount)} - Fee D${fee} = Send D${send}<br><span style="color:#aaa;font-size:12px">Already deducted from wallet</span></div><div><button style="border-color:#4ade80;color:#4ade80" onclick="markOldWithdrawPaid(${realIdx})">✅ Paid via Wave</button></div></div>`; }).join("");
+  document.getElementById('withdrawList').innerHTML=(wdHtml+oldHtml)||"No pending withdrawals - All clear ✅";
+  document.getElementById('withdrawHistory').innerHTML=wdReqs.filter(w=>w.status&&w.status!=='pending').slice(-10).reverse().map(w=>`<div class="item"><div><b>${w.name||w.phone}</b> - ${fmt(w.amount)} • <span class="pill ${w.status==='paid'?'ok':'pend'}">${w.status}</span></div></div>`).join("")||"No history yet";
+  let wdVals=withdrawals.slice(-7).map(w=>Number(w.amount||0)); while(wdVals.length<7) wdVals.unshift(0);
+  draw(document.getElementById('chart'),wdVals); draw(document.getElementById('chart2'),orders.slice(-7).map(o=>Number(o.amount||o.price||0)));
+  document.getElementById('wdTotal').textContent="Total: "+fmt(wdTotal)+" • Fees Earned: "+fmt(wdFeeEarn)+" • Avg: "+fmt(withdrawals.length?Math.round(wdTotal/Math.max(1,withdrawals.length+wdReqs.length)):0);
+}
+function approveMerchant(key){let u=get('gm_users',[]); u=u.map(x=>(x.phone===key||x.name===key)?{...x,verified:true,is_verified:true,verification_status:'verified'}:x); set('gm_users',u); alert("Approved!"); renderAll()}
+function rejectMerchant(key){let u=get('gm_users',[]).filter(x=>x.phone!==key&&x.name!==key); set('gm_users',u); renderAll()}
+function blockMerchant(i){let u=get('gm_users',[]); u[i].verified=false; u[i].is_verified=false; u[i].verification_status='unverified'; set('gm_users',u); renderAll()}
+function addMerchant(){let v=document.getElementById('newMerch').value.trim(); if(!v) return alert("Enter name"); let u=get('gm_users',[]); u.push({name:v,cat:"General",verified:false,is_verified:false,verification_status:'unverified',phone:'',wallet:0,createdAt:Date.now()}); set('gm_users',u); document.getElementById('newMerch').value=""; renderAll()}
+function deleteProd(i){if(!confirm("Delete this product?"))return; let p=get('gm_products',[]); p.splice(i,1); set('gm_products',p); renderAll()}
+function featureProd(i){let p=get('gm_products',[]); p[i].featured=true; set('gm_products',p); alert((p[i].name||"Product")+" featured on homepage!"); renderAll()}
+function setOrder(i,s){let o=get('gm_orders',[]); o[i].status=s; set('gm_orders',o); renderAll()}
+function releaseEscrow(id){let o=get('gm_orders',[]); let ord=o.find(x=>x.id===id); if(!ord) return; let amt=Number(ord.amount||ord.price||0); let users=get('gm_users',[]); let si=users.findIndex(u=>u.phone===ord.seller); if(si>=0) users[si].wallet=(users[si].wallet||0)+amt; set('gm_users',users); o=o.map(x=>x.id===id?{...x,status:"Completed",releasedMerchant:amt,releasedPlatform:0}:x); set('gm_orders',o); alert("Escrow released! 100% GMD "+amt+" to merchant. GamMarket takes 0%."); renderAll()}
+function doPayout(){let n=document.getElementById('payoutName').value, a=document.getElementById('payoutAmt').value, m=document.getElementById('payoutMethod').value||"Wave"; if(!n||!a) return alert("Enter name + amount"); let p=get('gm_payouts',[]); p.unshift({name:n,amount:Number(a),method:m,date:new Date().toLocaleDateString()}); set('gm_payouts',p); alert("Payout sent to "+n); renderAll()}
+function sendPayout(){showPage('payouts',document.querySelectorAll('#nav a')[6]);}
+function exportCSV(){let o=get('gm_orders',[]); let csv="ID,Buyer,Merchant,Amount,Status\n"+o.map(x=>`${x.id},${x.buyerName||x.buyer},${x.sellerName||x.seller||x.merchant},${x.amount||x.price},${x.status}`).join("\n"); let a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"})); a.download="gammarket.csv"; a.click()}
+function saveSettings(){let np=document.getElementById('newPw').value.trim(); if(np){ADMIN_PASSWORD=np; localStorage.setItem('gm_admin_pw',np)} document.getElementById('setMsg').textContent="Saved! Earning rules fixed: D300 first 2 months, then D1000 + 1% withdrawal. Min Deposit D400, Min Withdraw D400. Password updated if changed."; renderAll()}
+if(sessionStorage.getItem('gm_admin')==='yes') load();
+</script></body></html>
