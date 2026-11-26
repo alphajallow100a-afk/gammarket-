@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GamMarket - Support Panel</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0f172a;color:#fff;font-family:system-ui;padding:16px}
+.login-box{max-width:400px;margin:60px auto;background:#1e293b;padding:40px;border-radius:16px;text-align:center}
+.login-box input{width:100%;padding:14px;border:none;border-radius:12px;background:#334155;color:#fff;margin-bottom:12px}
+.login-box button{width:100%;padding:14px;background:#22c55e;color:#fff;border:none;border-radius:12px;font-weight:800;font-size:16px;cursor:pointer}
+.hidden{display:none!important}
+.top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.menu-btn{font-size:20px;background:#1e293b;padding:12px;border-radius:12px;cursor:pointer}
+.dropdown{position:absolute;right:0;top:50px;background:#1e293b;border-radius:12px;padding:10px;width:220px;box-shadow:0 10px 25px rgba(0,0,0,.5);z-index:99}
+.dropdown button{width:100%;text-align:left;padding:10px;background:none;border:none;color:#fff;cursor:pointer}
+.card{background:#1e293b;padding:16px;border-radius:16px;margin-bottom:16px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.stat{background:#1e293b;padding:14px;border-radius:14px;text-align:center}
+.stat h2{font-size:28px}
+.btn{padding:10px 14px;border:none;border-radius:10px;cursor:pointer;font-weight:700;color:#fff}
+.btn-green{background:#22c55e}
+.btn-red{background:#ef4444}
+.btn-yellow{background:#eab308;color:#000}
+.btn-blue{background:#3b82f6}
+.btn-gray{background:#475569}
+input,textarea{width:100%;padding:12px;border:none;border-radius:12px;background:#334155;color:#fff;margin-bottom:10px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:999}
+.modal-box{background:#1e293b;padding:20px;border-radius:16px;width:90%;max-width:400px}
+.user-row{display:flex;gap:10px;align-items:center;background:#0f172a;padding:10px;border-radius:12px;margin-bottom:10px}
+.user-row img{width:50px;height:50px;object-fit:cover;border-radius:8px}
+.id-photos{display:flex;gap:8px;margin:8px 0}
+.id-photos img{width:140px;height:90px;object-fit:cover;border-radius:10px;border:2px solid #facc15;cursor:pointer}
+.id-photos .back{border-color:#0ea5e9}
+</style>
+</head>
+<body>
+<div id="loginScreen" class="login-box">
+  <h2>GamMarket Support</h2>
+  <p style="color:#94a3b8;font-size:13px">By Alpha Jallow - Secure</p><br>
+  <input type="password" id="adminPass" placeholder="Enter Password" onkeydown="if(event.key==='Enter')checkLogin()">
+  <button onclick="checkLogin()">Login</button>
+  <p id="loginError" style="color:#ef4444;display:none">Wrong Password</p>
+</div>
+<div id="mainScreen" class="hidden">
+  <div class="top-bar" style="position:relative">
+    <div><h2>Support Panel</h2><p style="color:#94a3b8;font-size:13px">By Alpha Jallow</p></div>
+    <div class="menu-btn" onclick="toggleMenu()">☰</div>
+    <div id="topMenu" class="dropdown hidden">
+      <button onclick="openChangePass()">🔑 Change Support Password</button>
+      <button onclick="exportData()">📥 Export All Data</button>
+      <button onclick="clearAllData()">🗑 Clear All Data</button>
+      <button onclick="logout()">🚪 Logout</button>
+    </div>
+  </div>
+  <div class="stats">
+    <div class="stat"><h2 id="totalProducts">0</h2><p>Products</p></div>
+    <div class="stat"><h2 id="pendingIds">0</h2><p>Pending IDs</p></div>
+    <div class="stat"><h2 id="totalPending">0</h2><p>Pending Products</p></div>
+    <div class="stat"><h2 id="totalMessages">0</h2><p>Messages</p></div>
+  </div>
+  <div class="card">
+    <h3>🪪 Customer ID Verification - Approve / Reject</h3>
+    <div id="pendingIdsList">Loading...</div>
+  </div>
+  <div class="card">
+    <h3>🛍️ Merchant Products - Accept / Delete</h3>
+    <button class="btn btn-yellow" style="margin-bottom:10px" onclick="deleteDuplicates()">🧹 Delete Duplicate Products</button>
+    <div id="productApprovalList">Loading...</div>
+  </div>
+  <div class="card">
+    <h3>✅ Approved Products - Live in Shop / Delete</h3>
+    <div id="approvedProductsList">Loading...</div>
+  </div>
+  <div class="card">
+    <h3>💬 Customer Support Messages</h3>
+    <div id="supportMsgsList">Loading...</div>
+  </div>
+  <div class="card">
+    <h3>✉️ Send Message to Customer</h3>
+    <input id="msgPhone" placeholder="Customer Phone Number">
+    <textarea id="msgText" rows="3" placeholder="Type message to customer..."></textarea>
+    <button class="btn btn-blue" style="width:100%" onclick="sendDirectMessage()">Send Message to Customer</button>
+    <div id="sentMsgsList" style="margin-top:12px"></div>
+  </div>
+  <div class="card">
+    <h3>🚫 Customer Management - Ban / Delete Account</h3>
+    <div id="customerList">Loading...</div>
+  </div>
+</div>
+<div id="passModal" class="modal">
+  <div class="modal-box">
+    <h3>Change Support Password</h3><br>
+    <input type="password" id="oldPass" placeholder="Old Password">
+    <input type="password" id="newPass" placeholder="New Password">
+    <input type="password" id="confirmPass" placeholder="Confirm New Password">
+    <button class="btn btn-green" style="width:100%" onclick="changePass()">Save New Password</button>
+    <button class="btn btn-gray" style="width:100%;margin-top:8px" onclick="closeChangePass()">Cancel</button>
+  </div>
+</div>
+<script>
+const SUPABASE_URL = "https://tfnhgzblgtmlsejukebw.supabase.co";
+const SUPABASE_KEY = "sb_publishable_uJcmKF7oV1Tw57AFP_4wig_MtFVk8Bz";
+const H = { apikey: SUPABASE_KEY, Authorization: "Bearer " + SUPABASE_KEY, "Content-Type": "application/json" };
+const DEFAULT_PASS = "GamMarket2026";
+function getAdminPass(){ return localStorage.getItem('gamAdminPass') || DEFAULT_PASS; }
+function checkLogin(){
+  if(document.getElementById('adminPass').value === getAdminPass()){
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('mainScreen').classList.remove('hidden');
+    loadAll();
+  } else document.getElementById('loginError').style.display='block';
+}
+function logout(){ location.reload(); }
+function toggleMenu(){ document.getElementById('topMenu').classList.toggle('hidden'); }
+function openChangePass(){ document.getElementById('passModal').style.display='flex'; }
+function closeChangePass(){ document.getElementById('passModal').style.display='none'; }
+function changePass(){
+  let oldP=document.getElementById('oldPass').value;
+  let newP=document.getElementById('newPass').value;
+  let conf=document.getElementById('confirmPass').value;
+  if(oldP!==getAdminPass()){ alert('Old password wrong'); return; }
+  if(newP.length<4){ alert('Min 4 chars'); return; }
+  if(newP!==conf){ alert('Not matching'); return; }
+  localStorage.setItem('gamAdminPass', newP); alert('Password Changed - remember it, it is only saved on this phone'); closeChangePass();
+}
+async function supa(table, query="select=*"){
+  let r = await fetch(SUPABASE_URL + "/rest/v1/" + table + "?" + query, { headers: H });
+  return await r.json();
+}
+async function supaUpdate(table, id, data){
+  await fetch(SUPABASE_URL + "/rest/v1/" + table + "?id=eq." + id, { method:"PATCH", headers:H, body: JSON.stringify(data) });
+}
+async function supaDelete(table, id){
+  await fetch(SUPABASE_URL + "/rest/v1/" + table + "?id=eq." + id, { method:"DELETE", headers:H });
+}
+async function supaInsert(table, data){
+  await fetch(SUPABASE_URL + "/rest/v1/" + table, { method:"POST", headers:H, body: JSON.stringify(data) });
+}
+async function getAllUsers(){
+  let profiles = await supa("profiles", "select=*&order=created_at.desc").catch(()=>[]);
+  let users = await supa("users", "select=*&order=created_at.desc").catch(()=>[]);
+  if(!Array.isArray(profiles)) profiles = [];
+  if(!Array.isArray(users)) users = [];
+  const normalize = (u, source) => {
+    const name = (u.name || u.full_name || '').trim();
+    if(!u.phone || !name) return null;
+    if(['Nike shoe','Adidas'].includes(name)) return null;
+    return { ...u, _source: source, name: name, full_name: name, phone: String(u.phone), verification_status: String(u.verification_status || (u.verified ? 'verified' : 'unverified')).toLowerCase(), is_verified: u.verified === true || u.is_verified === true || String(u.verification_status||'').toLowerCase() === 'verified', id_photo: u.id_front_url || u.id_photo || u.id_front || null, id_back_photo: u.id_back_url || u.id_back || null };
+  };
+  let byPhone = new Map();
+  const add = (u) => {
+    if(!u) return;
+    const key = String(u.phone);
+    if(!byPhone.has(key)){ byPhone.set(key, u); return; }
+    const existing = byPhone.get(key);
+    const uScore = (u.verification_status === 'pending' ? 2 : 0) + (u.id_photo ? 1 : 0);
+    const eScore = (existing.verification_status === 'pending' ? 2 : 0) + (existing.id_photo ? 1 : 0);
+    if(uScore > eScore) byPhone.set(key, u);
+  };
+  profiles.forEach(p => add(normalize(p, 'profiles')));
+  users.forEach(p => add(normalize(p, 'users')));
+  return [...byPhone.values()];
+}
+async function getAllProducts(){
+  let prods = await supa("products", "select=*&order=created_at.desc");
+  if(!Array.isArray(prods)) return [];
+  return prods;
+}
+async function getMessages(){
+  let m = await supa("support_messages", "select=*&order=created_at.desc");
+  return Array.isArray(m) ? m : [];
+}
+async function getUserMap(){
+  let users = await getAllUsers();
+  let map = {};
+  users.forEach(u=>{ if(u.phone) map[u.phone]=u.name; if(u.id) map[u.id]=u.name; });
+  return {map, users};
+}
+function resolveMerchant(p, map){
+  let key = p.merchant_name || p.merchant_phone || p.seller_phone || p.seller || p.phone || p.user_id || p.owner_phone || p.owner;
+  if(p.merchant_name) return p.merchant_name;
+  if(key && map[key]) return map[key] + " (" + key + ")";
+  if(key) return String(key);
+  return "Unknown";
+}
+function dedupeProducts(prods){
+  let seen = new Set(); let out=[];
+  prods.forEach(p=>{ let k = ((p.title||p.name||'').toLowerCase().trim()) + "|" + (p.price||0) + "|" + (p.image||''); if(seen.has(k)) return; seen.add(k); out.push(p); });
+  return out;
+}
+async function renderVerifications(){
+  let users = await getAllUsers();
+  let pending = users.filter(u => u.verification_status === 'pending');
+  document.getElementById('pendingIds').innerText = pending.length;
+  let el = document.getElementById('pendingIdsList');
+  if(pending.length===0){ el.innerHTML='<p style="color:#94a3b8">No pending IDs - all verified</p>'; return; }
+  el.innerHTML = pending.map(u=>{
+    let front = u.id_front_url || u.id_photo;
+    let back = u.id_back_url || u.id_back_photo;
+    let photos = '';
+    if(front || back){ photos = `<div class="id-photos">${front?`<div><img src="${front}" onclick="window.open('${front}','_blank')"><br><small>Front - Tap to zoom</small></div>`:''}${back?`<div><img class="back" src="${back}" onclick="window.open('${back}','_blank')"><br><small>Back - Tap to zoom</small></div>`:''}</div>`; }
+    else { photos = `<div style="background:#334155;padding:8px;border-radius:8px;font-size:12px;color:#facc15">⚠️ No photo uploaded - Ask user to re-submit ID.</div>`; }
+    return `<div style="background:#0f172a;padding:12px;border-radius:12px;margin-bottom:10px"><div style="display:flex;gap:10px;align-items:center"><div style="flex:1"><b>${u.name||'Unknown'}</b><br><small>Phone: ${u.phone||'Unknown'}</small><br><span style="background:#eab308;color:#000;padding:2px 8px;border-radius:20px;font-size:11px">pending</span></div><button class="btn btn-green" onclick="approveUser('${u.id}','${u.phone}')">✓ Approve</button><button class="btn btn-red" onclick="rejectUser('${u.id}','${u.phone}')">✕ Reject</button></div>${photos}</div>`;
+  }).join('');
+}
+async function approveUser(id, phone){
+  try{
+    const profilesData = { verification_status:"verified", verified:true, is_verified:true };
+    const usersData = { verification_status:"verified", verified:true, is_verified:true };
+    if(id){ await fetch(SUPABASE_URL+"/rest/v1/profiles?id=eq."+id, {method:"PATCH", headers:H, body: JSON.stringify(profilesData)}).catch(()=>{}); await fetch(SUPABASE_URL+"/rest/v1/users?id=eq."+id, {method:"PATCH", headers:H, body: JSON.stringify(usersData)}).catch(()=>{}); }
+    if(phone){ await fetch(SUPABASE_URL+"/rest/v1/profiles?phone=eq."+encodeURIComponent(phone), {method:"PATCH", headers:H, body: JSON.stringify(profilesData)}).catch(()=>{}); await fetch(SUPABASE_URL+"/rest/v1/users?phone=eq."+encodeURIComponent(phone), {method:"PATCH", headers:H, body: JSON.stringify(usersData)}).catch(()=>{}); }
+    alert('✅ Approved! User is now Verified.'); loadAll();
+  }catch(e){ alert('Approve failed: '+e.message.slice(0,200)); }
+}
+async function rejectUser(id, phone){
+  try{
+    const profilesData = { verification_status:"unverified", verified:false, is_verified:false };
+    const usersData = { verification_status:"unverified", verified:false, is_verified:false };
+    if(id){ await fetch(SUPABASE_URL+"/rest/v1/profiles?id=eq."+id, {method:"PATCH", headers:H, body: JSON.stringify(profilesData)}).catch(()=>{}); await fetch(SUPABASE_URL+"/rest/v1/users?id=eq."+id, {method:"PATCH", headers:H, body: JSON.stringify(usersData)}).catch(()=>{}); }
+    if(phone){ await fetch(SUPABASE_URL+"/rest/v1/profiles?phone=eq."+encodeURIComponent(phone), {method:"PATCH", headers:H, body: JSON.stringify(profilesData)}).catch(()=>{}); await fetch(SUPABASE_URL+"/rest/v1/users?phone=eq."+encodeURIComponent(phone), {method:"PATCH", headers:H, body: JSON.stringify(usersData)}).catch(()=>{}); }
+    alert('❌ Rejected - user can re-submit ID.'); loadAll();
+  }catch(e){ alert('Reject failed: '+e.message.slice(0,200)); }
+}
+async function renderProductApprovals(){
+  let prods = await getAllProducts();
+  let {map} = await getUserMap();
+  document.getElementById('totalProducts').innerText = prods.length;
+  let pending = prods.filter(p => !p.approved);
+  let shown = dedupeProducts(pending);
+  document.getElementById('totalPending').innerText = pending.length;
+  let el = document.getElementById('productApprovalList');
+  if(pending.length===0){ el.innerHTML='<p style="color:#94a3b8">No pending products</p>'; return; }
+  el.innerHTML = shown.map(p=>{
+    let title = p.title || p.name || 'Product';
+    let img = p.image ? `<img src="${p.image}">` : `<div style="width:50px;height:50px;background:#334155;display:flex;align-items:center;justify-content:center;border-radius:8px">🛍️</div>`;
+    let merch = resolveMerchant(p, map);
+    let dupCount = pending.filter(q=>((q.title||q.name||'').toLowerCase().trim())+"|"+(q.price||0)+"|"+(q.image||'')===((p.title||p.name||'').toLowerCase().trim())+"|"+(p.price||0)+"|"+(p.image||'')).length;
+    return `<div class="user-row">${img}<div style="flex:1"><b>${title} - D${p.price||0}</b><br><small>Merchant: ${merch} | Pending ${dupCount>1?`• ⚠️ ${dupCount} duplicates`:''}</small></div><button class="btn btn-green" onclick="approveProduct('${p.id}')">✓ Accept</button><button class="btn btn-red" onclick="deleteProduct('${p.id}')">Delete</button></div>`;
+  }).join('');
+}
+async function renderApprovedProducts(){
+  let prods = await getAllProducts();
+  let {map} = await getUserMap();
+  let approved = prods.filter(p => p.approved);
+  let el = document.getElementById('approvedProductsList');
+  if(!el) return;
+  if(approved.length===0){ el.innerHTML='<p style="color:#94a3b8">No approved products - shop is empty</p>'; return; }
+  el.innerHTML = approved.map(p=>{
+    let title = p.title || p.name || 'Product';
+    let img = p.image ? `<img src="${p.image}">` : `<div style="width:50px;height:50px;background:#334155;display:flex;align-items:center;justify-content:center;border-radius:8px">🛍️</div>`;
+    let merch = resolveMerchant(p, map);
+    return `<div class="user-row">${img}<div style="flex:1"><b>${title} - D${p.price||0}</b><br><small>Merchant: ${merch} | ✅ Live</small></div><button class="btn btn-red" onclick="deleteProduct('${p.id}')">Delete</button></div>`;
+  }).join('');
+}
+async function approveProduct(id){ await supaUpdate("products", id, {approved:true}); loadAll(); }
+async function deleteProduct(id){ if(!confirm('Delete this product?')) return; await supaDelete("products", id); loadAll(); }
+async function deleteDuplicates(){
+  if(!confirm('Delete duplicate products? Keeps 1 copy of each.')) return;
+  let prods = await getAllProducts();
+  let seen = new Set();
+  for(let p of prods){ let k = ((p.title||p.name||'').toLowerCase().trim()) + "|" + (p.price||0) + "|" + (p.image||''); if(seen.has(k)){ await supaDelete("products", p.id); } else seen.add(k); }
+  alert('Duplicates deleted'); loadAll();
+}
+// FIXED: Show Admin vs Customer clearly
+async function renderSupportMessages(){
+  let msgs = await getMessages();
+  document.getElementById('totalMessages').innerText = msgs.length;
+  let el = document.getElementById('supportMsgsList');
+  if(msgs.length===0){ el.innerHTML='<p style="color:#94a3b8">No customer messages yet</p>'; return; }
+  el.innerHTML = msgs.map((m,i)=>{
+    let isAdminMsg = (m.name==='Admin');
+    let label = isAdminMsg ? '📤 YOU (Admin) → Customer '+m.phone : '📩 Customer '+(m.name||m.phone)+' ('+m.phone+')';
+    let showMsg = isAdminMsg ? '' : `<p><b>Customer:</b> ${m.message||''}</p>`;
+    let showReply = m.reply ? `<p style="color:#22c55e"><b>${isAdminMsg?'Your message:':'Your reply:'}</b> ${m.reply}</p>` : '<p style="color:#facc15">⏳ No reply yet</p>';
+    return `<div style="background:#0f172a;padding:10px;border-radius:10px;margin-bottom:8px"><b>${label}</b>${showMsg}${showReply}<button class="btn btn-blue" onclick="replyMessage('${m.id}')">Reply</button> <button class="btn btn-red" onclick="deleteMessage('${m.id}')">Delete</button></div>`;
+  }).join('');
+}
+async function replyMessage(id){
+  let txt = prompt('Reply to customer:');
+  if(!txt) return;
+  await supaUpdate("support_messages", id, {reply: txt});
+  alert('Reply sent ✅');
+  loadAll();
+}
+async function deleteMessage(id){ if(confirm('Delete message?')){ await supaDelete("support_messages", id); loadAll(); } }
+// FIXED: Real text goes in reply, not "Sent by Admin"
+async function sendDirectMessage(){
+  let phone = document.getElementById('msgPhone').value.trim();
+  let text = document.getElementById('msgText').value.trim();
+  if(!phone || !text){ alert('Enter phone and message'); return; }
+  await supaInsert("support_messages", {phone: phone, name: "Admin", message: "Support message", reply: text});
+  alert('Message Sent to '+phone+' ✅');
+  document.getElementById('msgPhone').value=''; document.getElementById('msgText').value='';
+  loadAll();
+}
+async function renderCustomers(){
+  let users = await getAllUsers();
+  let el = document.getElementById('customerList');
+  if(users.length===0){ el.innerHTML='<p style="color:#94a3b8">No customers found</p>'; return; }
+  el.innerHTML = users.map(u=>`<div class="user-row"><div style="flex:1"><b>${u.name||'Unknown'}</b><br><small>📞 ${u.phone||'Unknown'} | ✉️ ${u.email||''}</small><br><small>${u.is_verified?'✅ Verified':'❌ Not Verified'} ${u.is_banned?'| 🚫 Banned':''} | ${u.verification_status}</small></div><button class="btn ${u.is_banned?'btn-green':'btn-yellow'}" onclick="toggleBan('${u.id}', ${u.is_banned?false:true})">${u.is_banned?'Unban':'Ban'}</button><button class="btn btn-red" onclick="deleteCustomer('${u.id}')">Delete Account</button><button class="btn btn-blue" onclick="messageCustomer('${u.phone}')">Message</button></div>`).join('');
+}
+async function toggleBan(id, ban){ await supaUpdate("profiles", id, {is_banned: ban}); await supaUpdate("users", id, {is_banned: ban}).catch(()=>{}); loadAll(); }
+async function deleteCustomer(id){
+  if(!confirm('DELETE account permanently?')) return;
+  await supaDelete("profiles", id); await supaDelete("users", id).catch(()=>{}); loadAll();
+}
+function messageCustomer(phone){
+  document.getElementById('msgPhone').value = phone;
+  document.getElementById('msgText').focus();
+  window.scrollTo(0, document.body.scrollHeight);
+}
+async function exportData(){
+  let users = await getAllUsers(); let prods = await getAllProducts(); let msgs = await getMessages();
+  let blob = new Blob([JSON.stringify({users, products: prods, messages: msgs}, null, 2)], {type:'application/json'});
+  let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download='gammarket-data.json'; a.click();
+}
+async function clearAllData(){
+  if(!confirm('Clear ALL? This deletes from Supabase!')) return;
+  if(!confirm('Are you REALLY sure? This cannot be undone!')) return;
+  let users = await getAllUsers(); let prods = await getAllProducts(); let msgs = await getMessages();
+  for(let u of users) await supaDelete("profiles", u.id);
+  for(let p of prods) await supaDelete("products", p.id);
+  for(let m of msgs) await supaDelete("support_messages", m.id);
+  loadAll();
+}
+async function loadAll(){
+  await renderVerifications();
+  await renderProductApprovals();
+  await renderApprovedProducts();
+  await renderSupportMessages();
+  await renderCustomers();
+}
+setInterval(()=>{ let ms=document.getElementById('mainScreen'); if(ms && !ms.classList.contains('hidden')){ renderSupportMessages(); } }, 5000);
+document.addEventListener('click', function(e){
+  let m = document.getElementById('topMenu');
+  if(m && !e.target.closest('.top-bar')) m.classList.add('hidden');
+});
+</script>
+</body>
+</html>
