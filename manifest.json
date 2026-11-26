@@ -1,0 +1,11 @@
+{
+  "name": "GamMarket - Gambia's Marketplace",
+  "short_name": "GamMarket",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0f7a3f",
+  "icons": [
+    {"src": "logo.png", "sizes": "512x512", "type": "image/png"}
+  ]
+}
