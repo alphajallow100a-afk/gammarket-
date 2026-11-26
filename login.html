@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GamMarket - Login</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0f7a3f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GamMarket">
+<link rel="apple-touch-icon" href="/logo.png">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+body{background:#f5f5f5;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+.card{background:#fff;width:100%;max-width:400px;border-radius:20px;padding:28px 24px;box-shadow:0 10px 30px rgba(0,0,0,.1)}
+.logo{text-align:center;font-size:32px;font-weight:900;margin-bottom:4px}
+.logo span{color:#2563eb}
+.sub{text-align:center;color:#666;font-size:14px;margin-bottom:20px}
+.tabs{display:flex;background:#f1f5f9;border-radius:12px;padding:4px;margin-bottom:20px}
+.tabs button{flex:1;border:0;background:transparent;padding:10px;border-radius:9px;font-weight:700;cursor:pointer}
+.tabs button.active{background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.1);color:#2563eb}
+label{display:block;font-size:13px;font-weight:600;margin:12px 0 6px;color:#333}
+input{width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:15px;outline:none}
+input:focus{border-color:#2563eb}
+.btn{width:100%;background:#2563eb;color:#fff;border:0;padding:14px;border-radius:12px;font-weight:800;font-size:16px;margin-top:18px;cursor:pointer}
+.btn:disabled{opacity:.6}
+.msg{text-align:center;font-size:13px;margin-top:12px;min-height:18px;color:#dc2626}
+.msg.ok{color:#16a34a}
+.codebox{display:none;background:#eff6ff;border:1px dashed #2563eb;border-radius:12px;padding:14px;text-align:center;margin-top:14px}
+.codebox b{font-size:24px;letter-spacing:4px;color:#2563eb}
+.small{text-align:center;font-size:12px;color:#888;margin-top:14px}
+.linkbtn{background:none;border:0;color:#2563eb;font-weight:700;font-size:13px;cursor:pointer;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="card">
+<div class="logo">Gam<span>Market</span></div>
+<div class="sub">Gambia's Trusted Marketplace 🇬🇲</div>
+
+<div class="tabs">
+<button id="tabLogin" class="active" onclick="showTab('login')">Login</button>
+<button id="tabSignup" onclick="showTab('signup')">Create Account</button>
+</div>
+
+<!-- LOGIN -->
+<div id="viewLogin">
+<label>Phone Number</label>
+<input id="loginPhone" type="tel" placeholder="e.g. 371234567">
+<label>Password</label>
+<input id="loginPass" type="password" placeholder="Your password">
+<button class="btn" id="loginBtn" onclick="doLogin()">Login</button>
+<div style="text-align:center"><button class="linkbtn" onclick="showTab('forgot')">Forgot Password?</button></div>
+<div class="msg" id="loginMsg"></div>
+</div>
+
+<!-- FORGOT - Like your screenshot, but code for now -->
+<div id="viewForgot" style="display:none">
+<h3 style="text-align:center;font-size:20px">Forgot Password?</h3>
+<p style="text-align:center;color:#666;font-size:13px;margin:8px 0 12px">Enter your email and we'll send you a reset code</p>
+<label>Email Address</label>
+<input id="forgotEmail" type="email" placeholder="✉️ Enter your email">
+<button class="btn" id="forgotBtn" onclick="doForgot()">Send Reset Code</button>
+<div class="msg" id="forgotMsg"></div>
+<div class="codebox" id="forgotCodeBox">
+<div style="font-size:13px;color:#555">Your reset code (demo until company email is ready):</div>
+<b id="forgotCodeText"></b><br>
+<label>Enter Code</label>
+<input id="forgotCodeInput" placeholder="Enter code above" style="text-align:center">
+<label>New Password</label>
+<input id="forgotNewPass" type="password" placeholder="New password (min 4)">
+<label>Confirm New Password</label>
+<input id="forgotConfirmPass" type="password" placeholder="Confirm new password">
+<button class="btn" onclick="doResetWithCode()">Reset Password</button>
+</div>
+<div style="text-align:center"><button class="linkbtn" onclick="showTab('login')">← Back to Login</button></div>
+</div>
+
+<!-- SIGNUP -->
+<div id="viewSignup" style="display:none">
+<label>First Name</label>
+<input id="suFirst" placeholder="First Name">
+<label>Last Name</label>
+<input id="suLast" placeholder="Last Name">
+<label>Date of Birth</label>
+<input id="suDob" type="date">
+<label>Phone Number</label>
+<input id="suPhone" type="tel" placeholder="e.g. 371234567">
+<label>Email (optional - required for password reset)</label>
+<input id="suEmail" type="email" placeholder="you@email.com">
+<label>Password</label>
+<input id="suPass" type="password" placeholder="Create password (min 4)">
+<button class="btn" id="suBtn" onclick="doSignup()">Create Account</button>
+<div class="msg" id="suMsg"></div>
+<div class="codebox" id="codeBox">
+<div style="font-size:13px;color:#555">Your verification code (demo):</div>
+<b id="codeText"></b><br>
+<label>Enter Code</label>
+<input id="codeInput" placeholder="Enter code above" style="text-align:center">
+<button class="btn" onclick="verifyCode()">Verify & Enter</button>
+</div>
+</div>
+
+<div style="background:#fffbeb;border:1px solid #facc15;border-radius:10px;padding:12px;margin-top:14px;font-size:12px;line-height:1.6;color:#334155">
+<b>💰 GamMarket Fees:</b><br>
+- Monthly: First 2 months <b>D300 / month</b>, then <b>D1000 / month</b><br>
+- Withdrawal: <b>1%</b> - D1 per D100. Withdraw D1000 = Fee D10<br>
+- Escrow: <b>100% to merchant</b> - GamMarket takes 0% from sales
+</div>
+<div class="small">Everyone verifies with ID card. No auto-verify.</div>
+</div>
+
+<div id="installBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#0f7a3f;color:#fff;padding:12px;text-align:center;z-index:3000;font-size:13px">
+🛒 Add GamMarket to Home Screen for fast access!
+<button onclick="installApp()" style="background:#facc15;border:none;padding:8px 14px;border-radius:10px;font-weight:800;margin-left:8px">Install</button>
+<button onclick="document.getElementById('installBanner').style.display='none'" style="background:none;border:none;color:#fff;font-size:18px;margin-left:8px">✕</button>
+<div id="installHint" style="font-size:11px;margin-top:4px;opacity:.9"></div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://tfnhgzblgtmlsejukebw.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRmbmhnemJsZ3RtbHNlanVrZWJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyMjAxMjQsImV4cCI6MjEwNzc5NjEyNH0.YOAIghREhWRlFykKu55Ug4MlXQWAKsDpqYWj722sFGQ";
+const HEADERS = { "apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY, "Content-Type": "application/json", "Prefer": "return=representation" };
+let pendingUser = null, pendingCode = "";
+let forgotUser = null, forgotCode = "", forgotExpiry = 0;
+
+function showTab(t){
+  document.getElementById('viewLogin').style.display = t==='login'?'block':'none';
+  document.getElementById('viewSignup').style.display = t==='signup'?'block':'none';
+  document.getElementById('viewForgot').style.display = t==='forgot'?'block':'none';
+  document.getElementById('tabLogin').className = t==='login'?'active':'';
+  document.getElementById('tabSignup').className = t==='signup'?'active':'';
+}
+function normPhone(p){
+  let s = (p||"").replace(/\D/g,"");
+  if(s.startsWith("220") && s.length > 9) s = s.slice(3);
+  if(s.startsWith("0") && s.length > 9) s = s.slice(1);
+  return s;
+}
+function getLocalUsers(){
+  try{ return JSON.parse(localStorage.getItem('gm_users')||'[]'); }catch(e){ return []; }
+}
+async function doSignup(){
+  const first = document.getElementById('suFirst').value.trim();
+  const last = document.getElementById('suLast').value.trim();
+  const dob = document.getElementById('suDob').value;
+  const phone = normPhone(document.getElementById('suPhone').value);
+  const email = document.getElementById('suEmail').value.trim().toLowerCase();
+  const pass = document.getElementById('suPass').value;
+  const msg = document.getElementById('suMsg');
+  if(!first || !last || !phone || !pass){ msg.textContent="Fill First, Last, Phone and Password"; return; }
+  if(pass.length < 4){ msg.textContent="Password must be at least 4 characters"; return; }
+  document.getElementById('suBtn').disabled = true; msg.textContent="Checking if number exists..."; msg.className="msg";
+  try{
+    const check = await fetch(SUPABASE_URL + "/rest/v1/users?phone=eq." + phone, { headers: HEADERS });
+    const exists = await check.json();
+    if(exists && exists.length > 0){ msg.textContent="⛔ This phone number already has an account. Please Login or use a different number."; document.getElementById('suBtn').disabled=false; return; }
+    const check2 = await fetch(SUPABASE_URL + "/rest/v1/users?phone=eq.220" + phone, { headers: HEADERS });
+    const exists2 = await check2.json();
+    if(exists2 && exists2.length > 0){ msg.textContent="⛔ This phone number already has an account. Please Login or use a different number."; document.getElementById('suBtn').disabled=false; return; }
+    if(email){
+      const checkEmail = await fetch(SUPABASE_URL + "/rest/v1/users?email=eq." + encodeURIComponent(email), { headers: HEADERS });
+      const existsEmail = await checkEmail.json();
+      if(existsEmail && existsEmail.length > 0){ msg.textContent="⛔ This email already has an account. Please Login or use a different email."; document.getElementById('suBtn').disabled=false; return; }
+    }
+  }catch(e){}
+  let localUsers = getLocalUsers();
+  let localDup = localUsers.find(u => normPhone(u.phone) === phone);
+  if(localDup){ msg.textContent="⛔ This phone number already has an account ("+(localDup.name||'User')+"). Please Login or use a different number."; document.getElementById('suBtn').disabled=false; return; }
+  if(email){
+    let localDupEmail = localUsers.find(u => (u.email||'').toLowerCase() === email);
+    if(localDupEmail){ msg.textContent="⛔ This email already has an account. Please Login or use a different email."; document.getElementById('suBtn').disabled=false; return; }
+  }
+  msg.textContent="Creating account...";
+  const newUser = { name: first + " " + last, first_name: first, last_name: last, dob: dob || null, phone: phone, email: email || null, password: pass, role: "user", verification_status: "unverified", is_verified: false, verified: false, is_banned: false };
+  const res = await fetch(SUPABASE_URL + "/rest/v1/users", { method:"POST", headers: HEADERS, body: JSON.stringify(newUser) });
+  if(!res.ok){ const e = await res.text(); msg.textContent="Error: " + e.slice(0,100); document.getElementById('suBtn').disabled=false; return; }
+  const saved = await res.json();
+  pendingUser = saved[0] || newUser;
+  pendingCode = String(Math.floor(1000 + Math.random()*9000));
+  document.getElementById('codeText').textContent = pendingCode;
+  document.getElementById('codeBox').style.display = "block";
+  msg.textContent="Account created in Supabase! Enter code below."; msg.className="msg ok";
+  document.getElementById('suBtn').disabled = false;
+}
+function verifyCode(){
+  const entered = document.getElementById('codeInput').value.trim();
+  if(entered !== pendingCode){ alert("Wrong code. Try again."); return; }
+  finishLogin(pendingUser);
+}
+async function doLogin(){
+  const phone = normPhone(document.getElementById('loginPhone').value);
+  const pass = document.getElementById('loginPass').value;
+  const msg = document.getElementById('loginMsg');
+  if(!phone || !pass){ msg.textContent="Enter phone and password"; return; }
+  document.getElementById('loginBtn').disabled = true; msg.textContent="Logging in...";
+  let data = [];
+  try{
+    const res = await fetch(SUPABASE_URL + "/rest/v1/users?phone=eq." + phone + "&password=eq." + encodeURIComponent(pass), { headers: HEADERS });
+    data = await res.json();
+    if(!data || data.length===0){
+      const res2 = await fetch(SUPABASE_URL + "/rest/v1/users?phone=eq.220" + phone + "&password=eq." + encodeURIComponent(pass), { headers: HEADERS });
+      data = await res2.json();
+    }
+  }catch(e){}
+  document.getElementById('loginBtn').disabled = false;
+  if(!data || data.length === 0){ msg.textContent="Wrong phone or password."; return; }
+  if(data[0].is_banned){ msg.textContent="This account is banned."; return; }
+  finishLogin(data[0]);
+}
+async function doForgot(){
+  const email = document.getElementById('forgotEmail').value.trim().toLowerCase();
+  const msg = document.getElementById('forgotMsg');
+  if(!email || !email.includes('@')){ msg.textContent="Enter a valid email address"; return; }
+  document.getElementById('forgotBtn').disabled = true; msg.textContent="Checking email..."; msg.className="msg";
+  let user = null;
+  try{
+    const res = await fetch(SUPABASE_URL + "/rest/v1/users?email=eq." + encodeURIComponent(email), { headers: HEADERS });
+    const data = await res.json();
+    if(data && data.length > 0) user = data[0];
+  }catch(e){}
+  if(!user){
+    let local = getLocalUsers().find(u => (u.email||'').toLowerCase() === email);
+    if(local) user = local;
+  }
+  document.getElementById('forgotBtn').disabled = false;
+  if(!user){ msg.textContent="No account found with this email. Try a different email or Create Account."; return; }
+  forgotUser = user;
+  forgotCode = String(Math.floor(100000 + Math.random()*900000));
+  forgotExpiry = Date.now() + 60*60*1000;
+  document.getElementById('forgotCodeText').textContent = forgotCode;
+  document.getElementById('forgotCodeBox').style.display = "block";
+  msg.textContent="Reset code generated (expires in 1 hour). When company email is ready, this code will arrive by email from support@gammarket.com instead of showing here."; msg.className="msg ok";
+}
+async function doResetWithCode(){
+  const msg = document.getElementById('forgotMsg');
+  const entered = document.getElementById('forgotCodeInput').value.trim();
+  const np = document.getElementById('forgotNewPass').value;
+  const cp = document.getElementById('forgotConfirmPass').value;
+  if(!forgotUser){ msg.textContent="Request a reset code first."; return; }
+  if(Date.now() > forgotExpiry){ msg.textContent="Code expired (1 hour). Request a new code."; return; }
+  if(entered !== forgotCode){ msg.textContent="Wrong code. Try again."; return; }
+  if(!np || np.length < 4){ msg.textContent="New password must be at least 4 characters"; return; }
+  if(np !== cp){ msg.textContent="Passwords do not match"; return; }
+  msg.textContent="Resetting password...";
+  try{
+    if(forgotUser.id){
+      const res = await fetch(SUPABASE_URL + "/rest/v1/users?id=eq." + forgotUser.id, { method:"PATCH", headers: HEADERS, body: JSON.stringify({ password: np }) });
+      if(!res.ok) throw new Error(await res.text());
+    }
+    let users = getLocalUsers();
+    let idx = users.findIndex(u => normPhone(u.phone) === normPhone(forgotUser.phone));
+    if(idx>=0){ users[idx].password = np; localStorage.setItem('gm_users', JSON.stringify(users)); }
+  }catch(e){ msg.textContent="Reset failed: " + e.message.slice(0,80); return; }
+  msg.textContent="✅ Password reset! You can now login with your new password."; msg.className="msg ok";
+  setTimeout(()=>{ showTab('login'); }, 1200);
+}
+function finishLogin(u){
+  const isVer = !!(u.verified || u.is_verified || u.verification_status === 'verified');
+  const verStatus = u.verification_status || (isVer ? 'verified' : 'unverified');
+  const session = { id: u.id, name: u.name || (u.first_name+" "+u.last_name), first_name: u.first_name, last_name: u.last_name, phone: normPhone(u.phone), email: u.email, dob: u.dob, role: u.role || "user", verified: isVer, is_verified: isVer, verification_status: verStatus, createdAt: u.createdAt || u.created_at || Date.now(), joinedAt: u.createdAt || u.created_at || Date.now(), wallet: u.wallet || 0, totalPaid: u.totalPaid || 0, hasPaidBefore: u.hasPaidBefore || false, lastPaid: u.lastPaid || null };
+  localStorage.setItem("gm_current_user", JSON.stringify(session));
+  localStorage.setItem("gm_user", JSON.stringify(session));
+  localStorage.setItem("currentUser", JSON.stringify(session));
+  localStorage.setItem("gm_currentUser", JSON.stringify(session));
+  localStorage.setItem("gm_loginTime", Date.now().toString());
+  try{
+    let users = JSON.parse(localStorage.getItem("gm_users") || "[]");
+    let idx = users.findIndex(x => normPhone(x.phone) === session.phone);
+    if(idx >= 0){ users[idx] = { ...users[idx], ...session }; }
+    else { users.push(session); }
+    localStorage.setItem("gm_users", JSON.stringify(users));
+  }catch(e){}
+  window.location.href = "index.html";
+}
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBanner').style.display='block';});
+function installApp(){
+  if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;document.getElementById('installBanner').style.display='none';});}
+  else{
+    let isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent);
+    document.getElementById('installHint').innerText=isIOS?'iPhone: Tap Share ⬆️ → Add to Home Screen':'Android: Tap ⋮ Menu → Add to Home Screen / Install app';
+  }
+}
+setTimeout(()=>{if(!window.matchMedia('(display-mode: standalone)').matches) document.getElementById('installBanner').style.display='block';},3000);
+</script>
+</body>
+</html>
