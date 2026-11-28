@@ -545,6 +545,8 @@ header .left span{
   gap:8px;
   border-top:1px solid #e2e8f0;
 }
+.menu-row{width:100%;text-align:left;background:#fff;border:none;border-bottom:1px solid #e2e8f0;padding:14px 14px;font-size:14px;cursor:pointer;display:block}
+.menu-row:last-child{border-bottom:none}
 .biz-banner{
   background:linear-gradient(90deg,#0f7a3f,#16a34a);
   color:#fff;
@@ -568,6 +570,7 @@ header .left span{
 <span>Gambia's Marketplace</span>
 </div>
 <div class="right">
+<button onclick="showSection('wallet')" style="background:#facc15;border:none;width:38px;height:32px;border-radius:10px;font-size:18px;cursor:pointer" title="Wallet">💳</button>
 <span id="verifyBadge" class="badge red" onclick="onBadgeTap()" style="cursor:pointer">🔴 Unverified</span>
 </div>
 </header>
@@ -577,6 +580,7 @@ header .left span{
 <button class="btn-nav btn-sell" onclick="showSection('sell')">📦 Sell</button>
 <button class="btn-nav btn-orders" onclick="showSection('orders')">📦 Or</button>
 <button class="btn-nav btn-chat" onclick="showSection('chats')">💬 Chat</button>
+<button class="btn-nav" style="background:#0f7a3f;color:#fff" onclick="showSection('profile')">👤 Profile</button>
 </div>
 <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
 <div id="sideMenu">
@@ -740,6 +744,28 @@ Location: <span id="pLoc">No pin yet</span>
 </div>
 <div id="publicProfileView" style="display:none;margin-top:12px;border-top:1px solid #e2e8f0;padding-top:10px"></div>
 </div>
+
+<!-- PROFILE MENU - UPDATED -->
+<div class="card-white" style="padding:0;overflow:hidden">
+<button class="menu-row" onclick="showSection('orders')">📦 My Orders - Escrow</button>
+<button class="menu-row" onclick="showSection('chats')">💬 My Chats - Buyers↔Merchants</button>
+<button class="menu-row" onclick="showSection('supportChat')">💬 Live Chat - GamMarket Assistant</button>
+<button class="menu-row" onclick="showSection('help')">❓ Help Center</button>
+<button class="menu-row" onclick="showSection('privacy')">🔒 Privacy & Rules</button>
+<button class="menu-row" onclick="showSection('finance')">💰 Finance Panel</button>
+<button class="menu-row" onclick="doLogout()" style="color:#dc2626;font-weight:700">🚪 Logout</button>
+</div>
+
+<!-- CHANGE PASSWORD - BELOW, INSIDE PROFILE - WALLET NOT HERE -->
+<div class="card-white">
+<h3>🔑 Change Password</h3>
+<input id="oldPass" class="input" type="password" placeholder="Old Password">
+<input id="newPass" class="input" type="password" placeholder="New Password">
+<input id="confirmPass" class="input" type="password" placeholder="Confirm New Password">
+<button class="btn-nav green" style="width:100%;justify-content:center;padding:12px" onclick="changePassword()">Update Password</button>
+<p id="passMsg" style="font-size:12px;margin-top:6px"></p>
+</div>
+
 </div>
 <div id="walletSection" style="display:none">
 <div class="card-white">
@@ -921,7 +947,8 @@ Status: <span id="wStatus">Active</span>
 <button onclick="installApp()" style="background:#facc15;border:none;padding:8px 14px;border-radius:10px;font-weight:800;margin-left:8px">Install</button>
 <button onclick="document.getElementById('installBanner').style.display='none'" style="background:none;border:none;color:#fff;font-size:18px;margin-left:8px">✕</button>
 <div id="installHint" style="font-size:11px;margin-top:4px;opacity:.9"></div>
-</div><script>
+</div>
+<script>
 const SUPABASE_URL = "https://tfnhgzblgtmlsejukebw.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRmbmhnemJsZ3RtbHNlanVrZWJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyMjAxMjQsImV4cCI6MjEwNzc5NjEyNH0.YOAIghREhWRlFykKu55Ug4MlXQWAKsDpqYWj722sFGQ";
 const SUPA_H = {"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Content-Type":"application/json"};
@@ -933,18 +960,9 @@ const MONTHLY_FEE = 1000;
 const WITHDRAW_FEE_RATE = 0.01;
 const SUB_CYCLE_DAYS = 31;
 let tempProductImageBase64 = null;
-function isVerifiedUser(u){
-  if(!u) return false;
-  return !!u.verified;
-}
-function getBiz(u){
-  if(!u) return "";
-  return (u.businessName || u.business_name || "").trim();
-}
-function getBizDisplay(u){
-  let b = getBiz(u);
-  return b || (u ? (u.name || u.phone) : "Store");
-}
+function isVerifiedUser(u){ if(!u) return false; return !!u.verified; }
+function getBiz(u){ if(!u) return ""; return (u.businessName || u.business_name || "").trim(); }
+function getBizDisplay(u){ let b = getBiz(u); return b || (u ? (u.name || u.phone) : "Store"); }
 function requireVerified(action){
   let cur = getCurrent();
   if(!cur){ alert('Login first!'); return false; }
@@ -963,14 +981,8 @@ function getDueFee(u){
   if(!paid || age <= 60) return FIRST_MONTH_FEE;
   return MONTHLY_FEE;
 }
-function getNextDueDate(u){
-  if(!u || !u.lastPaid) return null;
-  return new Date(u.lastPaid + SUB_CYCLE_DAYS*86400000);
-}
-function getDaysSincePaid(u){
-  if(!u || !u.lastPaid) return 9999;
-  return Math.floor((Date.now()-u.lastPaid)/86400000);
-}
+function getNextDueDate(u){ if(!u || !u.lastPaid) return null; return new Date(u.lastPaid + SUB_CYCLE_DAYS*86400000); }
+function getDaysSincePaid(u){ if(!u || !u.lastPaid) return 9999; return Math.floor((Date.now()-u.lastPaid)/86400000); }
 function isSubscriptionActive(u){
   if(!u) return false;
   if(!u.hasPaidBefore || !u.lastPaid) return false;
@@ -979,10 +991,7 @@ function isSubscriptionActive(u){
 function getSubStatusText(u){
   if(!u) return "Not Active";
   if(!u.hasPaidBefore) return "Not Active - Pay D"+getDueFee(u)+" to Activate";
-  if(isSubscriptionActive(u)){
-    let left = SUB_CYCLE_DAYS - getDaysSincePaid(u);
-    return "✅ Active - "+left+" days left";
-  }
+  if(isSubscriptionActive(u)){ let left = SUB_CYCLE_DAYS - getDaysSincePaid(u); return "✅ Active - "+left+" days left"; }
   return "🔴 Expired - Pay to Reactivate";
 }
 function compressImage(file, maxSize, quality, callback){
@@ -1003,22 +1012,10 @@ function compressImage(file, maxSize, quality, callback){
   };
   reader.readAsDataURL(file);
 }
-function getUsers(){
-  try{ return JSON.parse(localStorage.getItem('gm_users')||'[]'); }
-  catch(e){ return []; }
-}
-function setUsers(u){
-  try{ localStorage.setItem('gm_users', JSON.stringify(u)); }
-  catch(e){}
-}
-function getCurrent(){
-  try{ return JSON.parse(localStorage.getItem('gm_currentUser')||'null'); }
-  catch(e){ return null; }
-}
-function setCurrent(u){
-  try{ localStorage.setItem('gm_currentUser', JSON.stringify(u)); }
-  catch(e){ alert('Quota! Try smaller photo'); }
-}
+function getUsers(){ try{ return JSON.parse(localStorage.getItem('gm_users')||'[]'); } catch(e){ return []; } }
+function setUsers(u){ try{ localStorage.setItem('gm_users', JSON.stringify(u)); } catch(e){} }
+function getCurrent(){ try{ return JSON.parse(localStorage.getItem('gm_currentUser')||'null'); } catch(e){ return null; } }
+function setCurrent(u){ try{ localStorage.setItem('gm_currentUser', JSON.stringify(u)); } catch(e){ alert('Quota! Try smaller photo'); } }
 function oneTimeResetAlpha(){
   try{
     if(localStorage.getItem('gm_alpha_reset_done')==='yes') return;
@@ -1191,25 +1188,13 @@ async function fetchApprovedProducts(){
     return d.map(normProduct);
   }catch(e){ return []; }
 }
-function showDashboard(){
-  activeCat='All'; showSection('home'); renderProducts();
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-function showDiscount(){
-  activeCat='Discount'; showSection('home'); renderProducts();
-  setTimeout(()=>{let g=document.getElementById('productGrid'); if(g) g.scrollIntoView({behavior:'smooth'});},100);
-}
+function showDashboard(){ activeCat='All'; showSection('home'); renderProducts(); window.scrollTo({top:0,behavior:'smooth'}); }
+function showDiscount(){ activeCat='Discount'; showSection('home'); renderProducts(); setTimeout(()=>{let g=document.getElementById('productGrid'); if(g) g.scrollIntoView({behavior:'smooth'});},100); }
 const SESSION_TIMEOUT = 48*60*60*1000;
-function touchSession(){
-  try{ localStorage.setItem('gm_lastActivity', Date.now().toString()); }catch(e){}
-}
+function touchSession(){ try{ localStorage.setItem('gm_lastActivity', Date.now().toString()); }catch(e){} }
 ['click','keydown','touchstart','scroll'].forEach(ev=>{ document.addEventListener(ev, touchSession, {passive:true}); });
 let activeCat = 'All';
-function setCat(c){
-  activeCat = c;
-  document.querySelectorAll('.topTab').forEach(t=>{t.classList.toggle('active',t.textContent===c)});
-  renderProducts();
-}
+function setCat(c){ activeCat = c; document.querySelectorAll('.topTab').forEach(t=>{t.classList.toggle('active',t.textContent===c)}); renderProducts(); }
 async function renderProducts(){
   let grid = document.getElementById('productGrid');
   let noP = document.getElementById('noProducts');
@@ -1284,10 +1269,7 @@ function simulatePay(){
   alert('✅ Paid D'+due+'!\nYour store is ACTIVE for 31 days.\nNext auto-deduct: '+new Date(cur.nextDue).toLocaleDateString());
   renderBadge(); renderWallet(); renderSell(); showSection('sell');
 }
-function copyWaveNumber(){
-  try{ navigator.clipboard.writeText(WAVE_NUMBER); alert('Copied: '+WAVE_NUMBER); }
-  catch(e){ prompt('Copy Wave number:', WAVE_NUMBER); }
-}
+function copyWaveNumber(){ try{ navigator.clipboard.writeText(WAVE_NUMBER); alert('Copied: '+WAVE_NUMBER); } catch(e){ prompt('Copy Wave number:', WAVE_NUMBER); } }
 function simulateDeposit(){
   if(!requireVerified('deposit money')) return;
   let msg = document.getElementById('depositMsg');
@@ -1528,10 +1510,27 @@ function updateProfile(){
   alert('✅ Profile updated! Business: '+(getBiz(cur)||'Not set'));
   renderBadge(); renderProducts(); renderSell();
 }
-async function refreshVerification(){
-  await syncVerification();
-  renderProfile(); renderBadge();
-  alert('Verification refreshed!'); showSection('home');
+async function refreshVerification(){ await syncVerification(); renderProfile(); renderBadge(); alert('Verification refreshed!'); showSection('home'); }
+function changePassword(){
+  let cur = getCurrent();
+  if(!cur) return alert('Login first');
+  let oldP = document.getElementById('oldPass').value;
+  let newP = document.getElementById('newPass').value;
+  let conf = document.getElementById('confirmPass').value;
+  let msg = document.getElementById('passMsg');
+  let stored = cur.pass || cur.password || "";
+  if(stored && oldP !== stored){ msg.textContent='Old password wrong'; msg.style.color='red'; return; }
+  if(newP.length < 4){ msg.textContent='New password must be 4+ chars'; msg.style.color='red'; return; }
+  if(newP !== conf){ msg.textContent='Passwords do not match'; msg.style.color='red'; return; }
+  cur.pass = newP; cur.password = newP;
+  setCurrent(cur);
+  let users = getUsers();
+  let idx = users.findIndex(u=>u.phone===cur.phone);
+  if(idx>=0){ users[idx].pass=newP; users[idx].password=newP; setUsers(users); }
+  msg.textContent='✅ Password changed successfully!'; msg.style.color='green';
+  document.getElementById('oldPass').value='';
+  document.getElementById('newPass').value='';
+  document.getElementById('confirmPass').value='';
 }
 function doLogout(){
   if(!confirm('Logout?')) return;
@@ -1541,14 +1540,8 @@ function doLogout(){
   location.href='login.html';
 }
 function logout(){ doLogout(); }
-function getChats(){
-  try{ return JSON.parse(localStorage.getItem('gm_chats')||'[]'); }
-  catch(e){ return []; }
-}
-function setChats(c){
-  try{ localStorage.setItem('gm_chats', JSON.stringify(c)); }
-  catch(e){ localStorage.setItem('gm_chats', JSON.stringify(c.slice(-20))); }
-}
+function getChats(){ try{ return JSON.parse(localStorage.getItem('gm_chats')||'[]'); } catch(e){ return []; } }
+function setChats(c){ try{ localStorage.setItem('gm_chats', JSON.stringify(c)); } catch(e){ localStorage.setItem('gm_chats', JSON.stringify(c.slice(-20))); } }
 let currentChatPhone = null, chatTab = 'all';
 function setChatTab(t){
   chatTab = t;
@@ -1651,11 +1644,7 @@ async function openMerchantProfile(phone){
     }).join('');
   },100);
 }
-function startChatWith(phone){
-  if(!phone) return;
-  showSection('chats');
-  setTimeout(()=>{ renderChatList(); openChat(phone); },300);
-}
+function startChatWith(phone){ if(!phone) return; showSection('chats'); setTimeout(()=>{ renderChatList(); openChat(phone); },300); }
 async function loadSupportChat(){
   let cur = getCurrent(); if(!cur) return;
   let box = document.getElementById('supportChatBox'); if(!box) return;
@@ -1681,15 +1670,8 @@ async function sendSupportChat(){
   catch(e){ alert('Send failed: '+e.message); return; }
   loadSupportChat();
 }
-function supportQuick(t){
-  let i = document.getElementById('supportMsg');
-  i.value = t; document.getElementById('supportCount').innerText = t.length+'/400';
-  sendSupportChat();
-}
-setInterval(()=>{
-  let s = document.getElementById('supportChatSection');
-  if(s && s.style.display!=='none') loadSupportChat();
-},4000);
+function supportQuick(t){ let i = document.getElementById('supportMsg'); i.value = t; document.getElementById('supportCount').innerText = t.length+'/400'; sendSupportChat(); }
+setInterval(()=>{ let s = document.getElementById('supportChatSection'); if(s && s.style.display!=='none') loadSupportChat(); },4000);
 function renderOrders(){
   let div = document.getElementById('ordersList'); if(!div) return;
   let cur = getCurrent();
@@ -1742,9 +1724,7 @@ function onBadgeTap(){
   if(cur && cur.verification_status==='pending'){ alert('Your ID is pending approval. Wait for Support.'); return; }
   document.getElementById('verifyModal').style.display='flex';
 }
-function closeVerifyModal(){
-  document.getElementById('verifyModal').style.display='none';
-}
+function closeVerifyModal(){ document.getElementById('verifyModal').style.display='none'; }
 async function upsertVerification(phone, name, data){
   for(let table of ['users','profiles']){
     try{
