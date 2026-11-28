@@ -2,1135 +2,368 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GamMarket - Gambia's Marketplace</title>
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#0f7a3f">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="GamMarket">
-<link rel="apple-touch-icon" href="apple-touch-icon.png.PNG">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-#sideMenu{
-  background:#F2F3F5 !important;
-  position:fixed !important;
-  left:0 !important;
-  top:0 !important;
-  height:100vh !important;
-  width:85% !important;
-  max-width:320px !important;
-  z-index:99999 !important;
-  overflow-y:auto !important;
-  box-shadow:2px 0 20px rgba(0,0,0,0.3) !important;
-  transform:translateX(-100%) !important;
-  transition:transform 0.3s ease !important;
-  padding:16px !important;
-}
-#sideMenu.open, #sideMenu.show, #sideMenu.active{
-  transform:translateX(0) !important;
-}
-#overlay{
-  z-index:99998 !important;
-  position:fixed !important;
-}
-.btn-menu{
-  background:transparent !important;
-  color:#111 !important;
-  font-weight:400 !important;
-  text-align:left !important;
-  border:none !important;
-  border-bottom:1px solid #EDEEF0 !important;
-  border-radius:0 !important;
-  box-shadow:none !important;
-  padding:14px 18px !important;
-  margin:0 !important;
-  width:100% !important;
-}
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:Inter,Segoe UI,Arial;
-}
-body{
-  background:#eef2f7;
-  color:#1e293b;
-  min-height:100vh;
-}
-header{
-  background:linear-gradient(90deg,#0a5a2e,#0f7a3f);
-  color:#fff;
-  padding:10px 14px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  position:sticky;
-  top:0;
-  z-index:100;
-}
-header .left b{
-  font-size:17px;
-  display:flex;
-  gap:5px;
-  align-items:center;
-}
-header .left span{
-  font-size:12px;
-  opacity:.9;
-  margin-left:6px;
-}
-.right{
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-.badge{
-  padding:5px 12px;
-  border-radius:20px;
-  font-size:12px;
-  font-weight:700;
-}
-.badge.red{
-  background:#dc2626;
-  color:#fff;
-}
-.badge.green{
-  background:#22c55e;
-  color:#fff;
-}
-.menu-yellow{
-  background:#facc15;
-  color:#000;
-  border:none;
-  width:38px;
-  height:32px;
-  border-radius:10px;
-  font-weight:800;
-  font-size:18px;
-  cursor:pointer;
-}
-.top-nav{
-  display:flex;
-  gap:8px;
-  padding:10px 14px;
-  overflow-x:auto;
-  background:#f8fafc;
-  border-bottom:1px solid #e2e8f0;
-  position:sticky;
-  top:48px;
-  z-index:90;
-}
-.btn-nav{
-  white-space:nowrap;
-  padding:10px 14px;
-  border-radius:12px;
-  border:none;
-  font-weight:700;
-  font-size:13px;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  gap:5px;
-}
-.btn-explore{
-  background:#0ea5e9;
-  color:#fff;
-  border:2px solid #facc15;
-}
-.btn-map{
-  background:#16a34a;
-  color:#fff;
-}
-.btn-sell{
-  background:#f59e0b;
-  color:#fff;
-}
-.btn-orders{
-  background:#334155;
-  color:#fff;
-}
-.btn-chat{
-  background:#7c3aed;
-  color:#fff;
-}
-.btn-buy{
-  background:#16a34a;
-  color:#fff;
-}
-.container{
-  padding:12px;
-  max-width:1100px;
-  margin:0 auto;
-}
-.card-white{
-  background:#fff;
-  border-radius:16px;
-  padding:14px;
-  box-shadow:0 2px 8px rgba(0,0,0,.05);
-  border:1px solid #e2e8f0;
-  margin-bottom:12px;
-}
-.input{
-  width:100%;
-  padding:11px;
-  border:1px solid #cbd5e1;
-  border-radius:10px;
-  margin:6px 0;
-  background:#fff;
-  font-size:14px;
-}
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
-  gap:12px;
-  margin-top:10px;
-}
-.product{
-  background:#fff;
-  border:1px solid #e2e8f0;
-  border-radius:14px;
-  overflow:hidden;
-}
-.product img.prod-img{
-  width:100%;
-  height:170px;
-  object-fit:cover;
-  display:block;
-  background:#f1f5f9;
-}
-.product .info{
-  padding:10px;
-  font-size:12px;
-}
-.product .price{
-  color:#0ea5e9;
-  font-weight:800;
-  font-size:14px;
-}
-.product .loc{
-  color:#64748b;
-  font-size:11px;
-  margin-top:6px;
-  background:#f8fafc;
-  padding:4px 6px;
-  border-radius:6px;
-}
-.blocked-box{
-  border:2px solid #ef4444;
-  background:#fef2f2;
-  border-radius:12px;
-  padding:12px;
-  color:#991b1b;
-  font-weight:700;
-  font-size:13px;
-}
-.upload-box{
-  border:2px dashed #0ea5e9;
-  background:#f0f9ff;
-  border-radius:12px;
-  padding:14px;
-  text-align:center;
-  margin:8px 0;
-  cursor:pointer;
-}
-.upload-preview{
-  width:100%;
-  max-height:200px;
-  object-fit:contain;
-  border-radius:10px;
-  margin-top:8px;
-  border:1px solid #e2e8f0;
-  display:none;
-  background:#fff;
-}
-.profile-pic-wrap{
-  width:90px;
-  height:90px;
-  border-radius:50%;
-  overflow:hidden;
-  border:3px solid #0ea5e9;
-  background:#e2e8f0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex-shrink:0;
-  cursor:pointer;
-}
-.profile-pic-wrap img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  display:block;
-}
-.overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.5);
-  z-index:400;
-  display:none;
-}
-.overlay.show{
-  display:block;
-}
-.menu-head{
-  display:flex;
-  justify-content:space-between;
-  color:#0f7a3f;
-  font-weight:800;
-  font-size:18px;
-  margin-bottom:10px;
-}
-.close-red{
-  background:#b91c1c;
-  color:#fff;
-  border:none;
-  width:32px;
-  height:32px;
-  border-radius:8px;
-  font-weight:800;
-}
-.blue{
-  background:#0ea5e9;
-  color:#fff;
-}
-.orange{
-  background:#f97316;
-  color:#fff;
-}
-.green{
-  background:#16a34a;
-  color:#fff;
-}
-.red{
-  background:#dc2626;
-  color:#fff;
-  margin-top:14px;
-}
-#map{
-  width:100%;
-  height:340px;
-  border-radius:12px;
-  margin-top:8px;
-  border:1px solid #e2e8f0;
-}
-.chat-box{
-  height:320px;
-  overflow-y:auto;
-  border:1px solid #e2e8f0;
-  border-radius:10px;
-  padding:8px;
-  background:#f8fafc;
-  display:flex;
-  flex-direction:column;
-  gap:4px;
-}
-.msg{
-  padding:8px 12px;
-  border-radius:14px;
-  margin:2px 0;
-  max-width:82%;
-  font-size:13px;
-}
-.msg.me{
-  background:#0ea5e9;
-  color:#fff;
-  margin-left:auto;
-}
-.msg.them{
-  background:#e2e8f0;
-  color:#000;
-}
-.escrow-card{
-  background:#fef3c7;
-  border:2px solid #f59e0b;
-  border-radius:12px;
-  padding:10px;
-  margin-top:8px;
-}
-.support-head{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:12px 14px;
-  border-bottom:1px solid #e2e8f0;
-  background:#fff;
-}
-.support-quick{
-  display:flex;
-  gap:6px;
-  padding:8px;
-  flex-wrap:wrap;
-}
-.support-quick button{
-  padding:7px 10px;
-  border-radius:20px;
-  border:1px solid #e2e8f0;
-  background:#f8fafc;
-  font-size:12px;
-  cursor:pointer;
-}
-.support-quick button.green{
-  background:#0f7a3f;
-  color:#fff;
-  border:none;
-}
-#productGrid{
-  display:grid !important;
-  grid-template-columns:1fr 1fr !important;
-  gap:12px !important;
-}
-#productGrid > div{
-  background:#fff !important;
-  border-radius:16px !important;
-  overflow:hidden !important;
-  box-shadow:0 2px 10px rgba(0,0,0,0.08) !important;
-  padding:0 !important;
-  padding-bottom:12px !important;
-}
-#productGrid img{
-  width:100% !important;
-  height:180px !important;
-  object-fit:cover !important;
-  display:block !important;
-}
-#productGrid button{
-  width:calc(100% - 20px) !important;
-  margin:8px 10px 0 10px !important;
-  padding:12px !important;
-  font-size:14px !important;
-  font-weight:700 !important;
-  border-radius:10px !important;
-  background:#16A34A !important;
-  color:#fff !important;
-  border:none !important;
-}
-#productGrid div:has(> button){
-  display:flex !important;
-  gap:6px !important;
-  padding:0 6px 6px 6px !important;
-  margin:0 !important;
-  box-sizing:border-box !important;
-  width:100% !important;
-}
-#productGrid button[onclick*="buyProduct"]{
-  flex:1.6 !important;
-  width:auto !important;
-  margin:0 !important;
-  font-size:10px !important;
-  padding:10px 2px !important;
-  white-space:nowrap !important;
-  background:#16A34A !important;
-  color:#fff !important;
-}
-#productGrid button[onclick*="Chat"]{
-  flex:1 !important;
-  width:auto !important;
-  margin:0 !important;
-  font-size:10px !important;
-  padding:10px 2px !important;
-  white-space:nowrap !important;
-  background:#7C3AED !important;
-  color:#fff !important;
-}
-.topTab{
-  color:#666;
-  padding-bottom:4px;
-  cursor:pointer;
-  flex:none;
-  font-size:14px;
-  font-weight:700;
-}
-.topTab.active{
-  color:#000;
-  border-bottom:3px solid #000;
-}
-.circle{
-  width:56px;
-  height:56px;
-  border-radius:50%;
-  background:#f2f2f2;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:26px;
-  margin:0 auto;
-}
-.circleLabel{
-  font-size:11px;
-  margin-top:4px;
-  font-weight:600;
-  text-align:center;
-}
-.tq-tabs{
-  display:flex;
-  gap:16px;
-  padding:10px 4px;
-  border-bottom:1px solid #e2e8f0;
-}
-.tq-tabs b{
-  cursor:pointer;
-  font-size:14px;
-  color:#666;
-  padding-bottom:5px;
-}
-.tq-tabs b.on{
-  color:#000;
-  border-bottom:3px solid #000;
-}
-.tq-row{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  padding:12px 4px;
-  border-bottom:1px solid #f1f5f9;
-  cursor:pointer;
-}
-.tq-row img{
-  width:52px;
-  height:52px;
-  border-radius:50%;
-  object-fit:cover;
-  border:2px solid #e2e8f0;
-}
-.tq-dot{
-  width:12px;
-  height:12px;
-  background:#22c55e;
-  border:2px solid #fff;
-  border-radius:50%;
-  margin-left:-18px;
-  margin-top:32px;
-}
-.tq-badge{
-  background:#000;
-  color:#fff;
-  min-width:20px;
-  height:20px;
-  border-radius:50%;
-  font-size:11px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:0 5px;
-}
-.tq-head{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:10px;
-  border-bottom:1px solid #e2e8f0;
-  background:#fff;
-  cursor:pointer;
-}
-.tq-head img{
-  width:44px;
-  height:44px;
-  border-radius:50%;
-  object-fit:cover;
-}
-.tq-prof-img{
-  width:100%;
-  height:280px;
-  object-fit:cover;
-  border-radius:16px;
-}
-.tq-sticky{
-  position:sticky;
-  bottom:0;
-  background:#fff;
-  padding:10px;
-  display:flex;
-  gap:8px;
-  border-top:1px solid #e2e8f0;
-}
-.menu-row{width:100%;text-align:left;background:#fff;border:none;border-bottom:1px solid #e2e8f0;padding:14px 14px;font-size:14px;cursor:pointer;display:block}
-.menu-row:last-child{border-bottom:none}
-.biz-banner{
-  background:linear-gradient(90deg,#0f7a3f,#16a34a);
-  color:#fff;
-  border-radius:12px;
-  padding:12px;
-  margin-bottom:10px;
-}
-.biz-banner b{
-  font-size:18px;
-}
-.biz-banner small{
-  opacity:.9;
-}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f8fafc;color:#0f172a;padding-bottom:90px}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none}
+/* TOP HEADER - LIKE SCREENSHOT */
+.topHeader{position:sticky;top:0;z-index:100;background:#fff;padding:10px 14px 8px;box-shadow:0 1px 8px rgba(0,0,0,.06)}
+.topRow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.logo{font-size:22px;font-weight:900;letter-spacing:-.5px}
+.logo span{color:#16a34a}
+.topIcons{display:flex;gap:8px;align-items:center}
+.iconBtn{width:42px;height:42px;border-radius:50%;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:20px;position:relative}
+.cartCount{position:absolute;top:-2px;right:-2px;background:#dc2626;color:#fff;font-size:10px;font-weight:800;min-width:18px;height:18px;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.walletBtn{background:#16a34a;color:#fff;border-radius:20px;padding:8px 14px;font-size:13px;font-weight:800;display:flex;align-items:center;gap:5px}
+.walletBtn small{font-weight:600;opacity:.9}
+.verifyRow{display:flex;align-items:center;gap:8px;margin-top:10px}
+.badge{font-size:12px;font-weight:800;padding:5px 10px;border-radius:20px}
+.badge.green{background:#dcfce7;color:#166534}
+.badge.red{background:#fee2e2;color:#991b1b;cursor:pointer}
+.badge.yellow{background:#fef9c3;color:#854d0e}
+.userChip{font-size:12px;color:#64748b;display:flex;align-items:center;gap:6px}
+.userChip img{width:26px;height:26px;border-radius:50%;object-fit:cover}
+/* SEARCH */
+.searchWrap{padding:10px 14px 0;background:#fff}
+.searchBox{display:flex;align-items:center;gap:8px;background:#f1f5f9;border-radius:12px;padding:12px 12px}
+.searchBox input{flex:1;border:none;outline:none;background:transparent;font-size:14px}
+.searchBox span{font-size:18px}
+/* BANNER */
+.banner{margin:12px 14px 0;background:linear-gradient(135deg,#0f5132,#16a34a,#22c55e);border-radius:16px;padding:16px;color:#fff;position:relative;overflow:hidden}
+.banner small{font-size:11px;letter-spacing:1px;opacity:.9;font-weight:700}
+.banner h2{font-size:22px;line-height:1.1;margin:4px 0 2px;font-weight:900}
+.banner h2 em{font-style:normal;color:#fde047}
+.banner p{font-size:12px;opacity:.95}
+.bannerBtn{background:#fff;color:#166534;font-weight:800;padding:8px 14px;border-radius:20px;font-size:12px;margin-top:10px}
+.bannerRight{position:absolute;right:10px;bottom:0;font-size:70px;opacity:.25}
+/* CATEGORIES PILLS */
+.catRow{display:flex;gap:8px;overflow-x:auto;padding:12px 14px 4px;scrollbar-width:none}
+.catRow::-webkit-scrollbar{display:none}
+.catPill{white-space:nowrap;padding:8px 16px;border-radius:20px;background:#fff;border:1px solid #e2e8f0;font-size:13px;font-weight:700;color:#334155}
+.catPill.active{background:#0f172a;color:#fff;border-color:#0f172a}
+.catPill.green{background:#dcfce7;color:#166534;border-color:#bbf7d0}
+/* SECTION */
+.secHead{display:flex;justify-content:space-between;align-items:center;padding:14px 14px 8px}
+.secHead h3{font-size:16px;font-weight:800}
+.secHead a{font-size:12px;color:#16a34a;font-weight:700}
+/* PRODUCT GRID - LIKE SCREENSHOT */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 14px}
+.product{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.05);position:relative}
+.product img{width:100%;height:150px;object-fit:cover;display:block}
+.discTag{position:absolute;top:8px;left:8px;background:#dc2626;color:#fff;font-size:11px;font-weight:800;padding:3px 8px;border-radius:12px}
+.prodBody{padding:10px}
+.prodBody b{font-size:13px;line-height:1.2;display:block;min-height:32px}
+.biz{font-size:11px;color:#16a34a;font-weight:700;margin:3px 0}
+.priceRow{display:flex;align-items:center;gap:6px}
+.price{font-size:15px;font-weight:900;color:#0f172a}
+.oldPrice{font-size:11px;color:#94a3b8;text-decoration:line-through}
+.prodBtns{display:flex;gap:6px;margin-top:8px}
+.btnAdd{flex:1;background:#16a34a;color:#fff;padding:8px;border-radius:10px;font-size:11px;font-weight:800}
+.btnChat{flex:1;background:#f1f5f9;color:#0f172a;padding:8px;border-radius:10px;font-size:11px;font-weight:700}
+.btnBuy{flex:1;background:#0f172a;color:#fff;padding:8px;border-radius:10px;font-size:11px;font-weight:800}
+/* BOTTOM NAV - LIKE SCREENSHOT */
+.bottomNav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e2e8f0;display:flex;justify-content:space-around;padding:8px 4px calc(8px + env(safe-area-inset-bottom));z-index:200}
+.navItem{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;font-weight:600;color:#94a3b8;background:none;padding:4px 8px;min-width:52px;position:relative}
+.navItem.active{color:#16a34a}
+.navItem span{font-size:20px}
+.navItem .dot{position:absolute;top:2px;right:8px;width:8px;height:8px;background:#dc2626;border-radius:50%}
+/* GENERIC */
+.page{padding:14px}
+.card{background:#fff;border-radius:16px;padding:14px;box-shadow:0 1px 6px rgba(0,0,0,.05);margin-bottom:12px}
+.card h3{font-size:15px;margin-bottom:8px}
+.input{width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:12px;font-size:14px;outline:none;margin-bottom:10px;background:#f8fafc}
+.input:focus{border-color:#16a34a;background:#fff}
+.btn{width:100%;padding:13px;border-radius:12px;font-size:14px;font-weight:800;color:#fff;background:#16a34a}
+.btnDark{background:#0f172a}
+.btnBlue{background:#0ea5e9}
+.btnGray{background:#f1f5f9;color:#0f172a}
+.btnRed{background:#dc2626}
+.small{font-size:12px;color:#64748b}
+.center{text-align:center}
+.hidden{display:none!important}
+#map{height:320px;border-radius:16px;z-index:1}
+.profile-pic-wrap{width:90px;height:90px;border-radius:50%;overflow:hidden;border:3px solid #16a34a;margin:0 auto}
+.profile-pic-wrap img{width:100%;height:100%;object-fit:cover}
+.chatBox{height:320px;overflow-y:auto;background:#f8fafc;border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.msg{max-width:80%;padding:9px 12px;border-radius:14px;font-size:13px}
+.msg.me{background:#16a34a;color:#fff;align-self:flex-end}
+.msg.them{background:#fff;align-self:flex-start;border:1px solid #e2e8f0}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:none;align-items:flex-end;justify-content:center}
+.modal.open{display:flex}
+.modalBox{background:#fff;width:100%;max-width:500px;border-radius:20px 20px 0 0;padding:20px;max-height:85vh;overflow-y:auto}
+.installBanner{margin:12px 14px 0;background:#0f172a;color:#fff;border-radius:14px;padding:12px;display:none;align-items:center;justify-content:space-between;gap:10px}
+.installBanner b{font-size:13px}
 </style>
 </head>
 <body>
-<header>
-<div class="left" style="display:flex;align-items:center;gap:8px">
-<button class="menu-yellow" onclick="toggleMenu()">≡</button>
-<img src="logo.png .PNG" style="height:32px;width:32px;border-radius:8px;vertical-align:middle"> <b>GamMarket</b>
-<span>Gambia's Marketplace</span>
-</div>
-<div class="right">
-<button onclick="showSection('wallet')" style="background:#facc15;border:none;width:38px;height:32px;border-radius:10px;font-size:18px;cursor:pointer" title="Wallet">💳</button>
-<span id="verifyBadge" class="badge red" onclick="onBadgeTap()" style="cursor:pointer">🔴 Unverified</span>
-</div>
+
+<!-- TOP HEADER -->
+<header class="topHeader">
+  <div class="topRow">
+    <div class="logo">Gam<span>Market</span></div>
+    <div class="topIcons">
+      <button class="iconBtn" onclick="showSection('cart')">🛒<span class="cartCount" id="cartCount" style="display:none">0</span></button>
+      <button class="walletBtn" onclick="showSection('wallet')">💳 Wallet<br><small id="topWallet">D0</small></button>
+      <button class="iconBtn" onclick="toggleMenu()">☰</button>
+    </div>
+  </div>
+  <div class="verifyRow">
+    <span id="verifyBadge" class="badge red" onclick="onBadgeTap()">🔴 Unverified</span>
+    <span class="userChip"><img id="topAvatar" src="https://via.placeholder.com/100"><span id="topName">User</span> • <span id="topBiz"></span></span>
+  </div>
 </header>
-<div class="top-nav">
-<button class="btn-nav btn-explore" onclick="showSection('home')">🔍 Explore</button>
-<button class="btn-nav btn-map" onclick="showSection('mapSec')">🗺️ Map</button>
-<button class="btn-nav btn-sell" onclick="showSection('sell')">📦 Sell</button>
-<button class="btn-nav btn-orders" onclick="showSection('orders')">📦 Or</button>
-<button class="btn-nav btn-chat" onclick="showSection('chats')">💬 Chat</button>
-<button class="btn-nav" style="background:#0f7a3f;color:#fff" onclick="showSection('profile')">👤 Profile</button>
+
+<!-- SEARCH -->
+<div class="searchWrap" id="searchWrap">
+  <div class="searchBox"><span>🔍</span><input id="searchInput" placeholder="Search for products, shops..." oninput="renderProducts()"><span onclick="document.getElementById('searchInput').value='';renderProducts()">✕</span></div>
 </div>
-<div id="overlay" class="overlay" onclick="toggleMenu()"></div>
-<div id="sideMenu">
-<div class="menu-head"><span>Menu</span><button class="close-red" onclick="toggleMenu()">X</button></div>
-<div style="display:flex;gap:10px;align-items:center;margin:12px 0">
-<div class="profile-pic-wrap small" style="width:68px !important;height:68px !important;min-width:68px !important;border:3px solid #22c55e !important;overflow:hidden !important;border-radius:50% !important">
-<img id="menuPic" src="https://via.placeholder.com/100" style="width:100% !important;height:100% !important;object-fit:cover !important">
-</div>
-<div>
-<b id="mName" style="color:#111">Guest</b><br>
-<small id="mPhone" style="color:#64748b"></small><br>
-<small id="mBiz" style="color:#0f7a3f;font-weight:700"></small>
-</div>
-</div>
-<button class="btn-menu" style="background:#111 !important;color:#fff !important;font-weight:800 !important;text-align:center !important;border-radius:10px !important;margin:10px 0 !important" onclick="showDashboard();toggleMenu()">📊 Dashboard - Go to Explore</button>
-<button class="btn-menu" onclick="showSection('profile');toggleMenu()">👤 Profile - Business Name & Pic</button>
-<button class="btn-menu" onclick="showSection('wallet');toggleMenu()">💳 Wallet - Deposit/Withdraw/Transfer</button>
-<button class="btn-menu" onclick="showSection('orders');toggleMenu()">📦 My Orders - Escrow</button>
-<button class="btn-menu" onclick="showSection('chats');toggleMenu()">💬 Chat - Buyers↔Merchants</button>
-<button class="btn-menu" onclick="showSection('supportChat');toggleMenu()">💬 Live Chat - GamMarket Assistant</button>
-<button class="btn-menu" onclick="showSection('help');toggleMenu()">❓ Help Center</button>
-<button class="btn-menu" onclick="showSection('privacy');toggleMenu()">🔒 Privacy & Rules</button>
-<button class="btn-menu" onclick="showSection('finance');toggleMenu()">💰 Finance Panel</button>
-<button class="btn-menu" onclick="doLogout()">🚪 Logout</button>
-</div><div class="container">
+
+<!-- INSTALL -->
+<div class="installBanner" id="installBanner"><div><b>Install GamMarket App</b><div class="small" style="color:#cbd5e1">Fast, offline, full screen</div></div><button class="btn" style="width:auto;padding:9px 16px" onclick="installApp()">Install</button></div>
+
+<!-- HOME SECTION -->
 <div id="homeSection">
-<div class="card-white">
-<h3>🔍 Explore - Verified Sellers Only</h3>
-<input id="searchInput" class="input" placeholder="Search..." oninput="renderProducts()">
-<div style="position:relative;overflow:hidden;border-radius:10px;margin:8px 10px 0;height:180px;" id="slider">
-<div class="slide" onclick="showDiscount()" style="cursor:pointer;position:absolute;width:100%;height:100%;background:#111;color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;transition:0.5s;">
-<span style="font-size:11px;letter-spacing:2px;">STREET ESSENTIALS</span>
-<b style="font-size:38px;">80% OFF</b>
-<span style="background:#ff9900;color:#fff;padding:5px 15px;border-radius:4px;font-size:12px;margin-top:8px;">SHOP NOW</span>
-</div>
-<div class="slide" onclick="showDiscount()" style="cursor:pointer;position:absolute;width:100%;height:100%;background:#b00020;color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;transition:0.5s;transform:translateX(100%);">
-<span style="font-size:11px;letter-spacing:2px;">YEAR-END MEGA SALE</span>
-<b style="font-size:38px;">UP TO 80% OFF</b>
-<span style="background:#000;color:#fff;padding:5px 15px;border-radius:4px;font-size:12px;margin-top:8px;">SHOP NOW</span>
-</div>
-<div class="slide" onclick="showDiscount()" style="cursor:pointer;position:absolute;width:100%;height:100%;background:#f5f5f5;color:#000;display:flex;flex-direction:column;justify-content:center;align-items:center;transition:0.5s;transform:translateX(100%);">
-<b style="font-size:32px;">EVERLAST</b>
-<span style="font-size:12px;letter-spacing:3px;">SUMWON</span>
-<span style="background:#e91e63;color:#fff;padding:5px 15px;border-radius:4px;font-size:12px;margin-top:8px;">SHOP NOW</span>
-</div>
-</div>
-<script>
-let words=["T Shirt For Men","Baggy T Shirt","Oversized T Shirt Men","T Shirts"];
-let wi=0;
-setInterval(()=>{wi=(wi+1)%words.length;let s=document.getElementById('searchInput');if(s) s.placeholder=words[wi];},2000);
-let slides=document.querySelectorAll('.slide');
-let si=0;
-setInterval(()=>{slides[si].style.transform='translateX(-100%)';si=(si+1)%slides.length;slides[si].style.transform='translateX(0)';setTimeout(()=>{slides.forEach((s,i)=>{if(i!==si) s.style.transform='translateX(100%)';});},500);},4000);
-</script>
-<div style="background:#fff;margin-top:10px;border-radius:12px;padding-bottom:5px;">
-<div style="display:flex;gap:18px;overflow-x:auto;padding:10px 12px 5px 12px;white-space:nowrap;">
-<span onclick="setCat('All')" class="topTab active">All</span>
-<span onclick="setCat('Men')" class="topTab">Men</span>
-<span onclick="setCat('Women')" class="topTab">Women</span>
-<span onclick="setCat('Shoes')" class="topTab">Shoes</span>
-<span onclick="setCat('Kids')" class="topTab">Kids</span>
-<span onclick="setCat('Cars')" class="topTab">Cars</span>
-<span onclick="setCat('Houses')" class="topTab">Houses</span>
-<span onclick="setCat('Phones')" class="topTab">Phones</span>
-<span onclick="setCat('Electronics')" class="topTab">Electronics</span>
-</div>
-<div style="display:flex;gap:12px;overflow-x:auto;padding:8px 12px;white-space:nowrap;">
-<div onclick="setCat('Men')"><div class="circle">👕</div><div class="circleLabel">Men</div></div>
-<div onclick="setCat('Women')"><div class="circle">👗</div><div class="circleLabel">Women</div></div>
-<div onclick="setCat('Shoes')"><div class="circle">👟</div><div class="circleLabel">Shoes</div></div>
-<div onclick="setCat('Kids')"><div class="circle">🧒</div><div class="circleLabel">Kids</div></div>
-<div onclick="setCat('Cars')"><div class="circle">🚗</div><div class="circleLabel">Cars</div></div>
-<div onclick="setCat('Houses')"><div class="circle">🏠</div><div class="circleLabel">Houses</div></div>
-<div onclick="setCat('Phones')"><div class="circle">📱</div><div class="circleLabel">Phones</div></div>
-<div onclick="setCat('Electronics')"><div class="circle">💻</div><div class="circleLabel">Electronics</div></div>
-</div>
-</div>
-<div id="productGrid" class="grid"></div>
-<p id="noProducts" style="color:#64748b;font-size:13px;margin-top:10px">No products yet.</p>
-</div>
-</div>
-<div id="mapSec" style="display:none">
-<div class="card-white">
-<h3>🗺️ Map - Merchant Locations</h3>
-<div id="map"></div>
-<div id="mapList" style="margin-top:10px;font-size:12px;color:#64748b"></div>
-</div>
-</div>
-<div id="sellSection" style="display:none">
-<div class="card-white">
-<div id="sellBizBanner" class="biz-banner">
-<b id="sellBizName">🏪 My Store</b><br>
-<small>Set your Business Name in Profile - e.g. Jallow Enterprise</small><br>
-<small>Subscription: <span id="sellSubStatus">Not Active</span> | Next Auto-Deduct: <span id="sellNextDue">-</span></small>
-</div>
-<div style="font-weight:800;color:#ea580c;margin-bottom:4px">📦 Sell - Post Product With Map Pin</div>
-<div style="font-size:12px;color:#64748b;margin-bottom:8px">Due D<span id="sellDue">300</span> | Wallet D<span id="sellWallet">0</span> | First 2 months D300, then D1000 - Auto-deduct every 31 days</div>
-<div id="sellPayGate" style="display:none"></div>
-<div id="sellInner">
-<input id="prodName" class="input" placeholder="Product name">
-<select id="prodCategory" class="input">
-<option value="Men">👕 Men</option>
-<option value="Women">👗 Women</option>
-<option value="Shoes">👟 Shoes</option>
-<option value="Kids">🧒 Kids</option>
-<option value="Cars">🚗 Cars</option>
-<option value="Houses">🏠 Houses</option>
-<option value="Phones">📱 Phones</option>
-<option value="Electronics">💻 Electronics</option>
-<option value="Other">📦 Other</option>
-</select>
-<input id="prodPrice" class="input" type="number" placeholder="Price D">
-<input id="prodOldPrice" class="input" type="number" placeholder="Old Price D (optional)">
-<div class="upload-box" onclick="document.getElementById('prodFile').click()">
-<div>📷 <b>Tap to Upload Product Photo</b></div>
-<input type="file" id="prodFile" accept="image/*" style="display:none" onchange="handleProductPhoto(event)">
-<img id="prodPreview" class="upload-preview">
-<p id="prodFileName" style="font-size:11px;color:#0ea5e9;margin-top:4px"></p>
-</div>
-<input id="prodImage" class="input" placeholder="Or Image URL">
-<div style="display:flex;gap:6px">
-<input id="prodLat" class="input" placeholder="Lat 13.4432" value="13.4432">
-<input id="prodLng" class="input" placeholder="Lng -15.3101" value="-15.3101">
-</div>
-<button class="btn-nav btn-sell" style="width:100%;margin-top:10px;padding:12px;border:none" onclick="addProduct()">Post Product With Map Pin</button>
-<div id="myProducts" style="margin-top:12px"></div>
-</div>
-</div>
-</div>
-<div id="profileSection" style="display:none">
-<div class="card-white">
-<h3>👤 Profile - Business Name, ID Verify & Picture</h3>
-<div style="display:flex;gap:14px;align-items:center;margin:14px 0">
-<div class="profile-pic-wrap" onclick="document.getElementById('picInput').click()">
-<img id="profilePicPreview" src="https://via.placeholder.com/150">
-</div>
-<div style="flex:1">
-<button class="btn-nav btn-explore" style="width:100%" onclick="document.getElementById('picInput').click()">📷 Upload Profile Picture</button>
-<input type="file" id="picInput" accept="image/*" style="display:none" onchange="uploadProfilePic(event)">
-<p style="font-size:11px;color:#64748b;margin-top:6px">All users can upload - Round circle</p>
-<button class="btn-nav btn-map" style="margin-top:8px;width:100%" onclick="viewPublicProfile()">👁️ View My Public Profile</button>
-</div>
-</div>
-<p style="font-size:13px;line-height:1.8;background:#f8fafc;padding:8px;border-radius:8px">
-Phone: <span id="pPhone"></span><br>
-Name: <span id="pName"></span><br>
-Business: <b id="pBiz" style="color:#0f7a3f"></b><br>
-Status: <span id="pStatus"></span><br>
-Joined: <span id="pJoined"></span><br>
-Last Paid: <span id="pLastPaid"></span><br>
-Next Auto-Deduct: <span id="pNextDue"></span><br>
-Has Paid: <span id="pHasPaid"></span><br>
-Due: D<span id="pDue"></span><br>
-Location: <span id="pLoc">No pin yet</span>
-</p>
-<input id="fullNameInput" class="input" placeholder="Full name">
-<input id="bizNameInput" class="input" placeholder="🏪 Business Name - e.g. Jallow Enterprise">
-<div style="display:flex;gap:6px">
-<button class="btn-nav btn-explore" onclick="updateProfile()">Update Profile + Business Name</button>
-<button class="btn-nav btn-map" onclick="refreshVerification()">🔄 Refresh</button>
-</div>
-<div id="publicProfileView" style="display:none;margin-top:12px;border-top:1px solid #e2e8f0;padding-top:10px"></div>
+  <div class="banner">
+    <small>ESSENTIALS OFF • YEAR-END</small>
+    <h2>Everything You Need,<br><em>One Marketplace.</em></h2>
+    <p>Shop verified sellers across Gambia. Escrow protected.</p>
+    <button class="bannerBtn" onclick="showDiscount()">Shop Discounts →</button>
+    <div class="bannerRight">🛍️</div>
+  </div>
+
+  <div class="catRow" id="catRow">
+    <button class="catPill active" onclick="setCat('All',this)">All</button>
+    <button class="catPill" onclick="setCat('Men',this)">Men</button>
+    <button class="catPill" onclick="setCat('Women',this)">Women</button>
+    <button class="catPill" onclick="setCat('Shoes',this)">Shoes</button>
+    <button class="catPill" onclick="setCat('Kids',this)">Kids</button>
+    <button class="catPill" onclick="setCat('Cars',this)">Cars</button>
+    <button class="catPill" onclick="setCat('House',this)">House</button>
+    <button class="catPill green" onclick="setCat('Discount',this)">🔥 Discount</button>
+  </div>
+
+  <div class="secHead"><h3>Popular Products</h3><a href="#" onclick="setCat('All');return false">View all →</a></div>
+  <div class="grid" id="productGrid"></div>
+  <p id="noProducts" class="center small" style="padding:20px;display:none">No products yet. Be first to sell!</p>
+
+  <div class="secHead"><h3>Nearby Shops on Map</h3><a href="#" onclick="showSection('mapSec');return false">Open Map →</a></div>
+  <div class="card" style="margin:0 14px"><div id="mapList" class="small">Loading shops...</div></div>
 </div>
 
-<!-- PROFILE MENU - UPDATED -->
-<div class="card-white" style="padding:0;overflow:hidden">
-<button class="menu-row" onclick="showSection('orders')">📦 My Orders - Escrow</button>
-<button class="menu-row" onclick="showSection('chats')">💬 My Chats - Buyers↔Merchants</button>
-<button class="menu-row" onclick="showSection('supportChat')">💬 Live Chat - GamMarket Assistant</button>
-<button class="menu-row" onclick="showSection('help')">❓ Help Center</button>
-<button class="menu-row" onclick="showSection('privacy')">🔒 Privacy & Rules</button>
-<button class="menu-row" onclick="showSection('finance')">💰 Finance Panel</button>
-<button class="menu-row" onclick="doLogout()" style="color:#dc2626;font-weight:700">🚪 Logout</button>
+<!-- MAP -->
+<div id="mapSec" class="page hidden">
+  <h3>📍 Shops Near You</h3><p class="small" style="margin:6px 0 10px">Tap a pin to chat or view shop.</p>
+  <div id="map"></div>
+  <div class="card" style="margin-top:12px"><div id="mapList2" class="small"></div></div>
 </div>
 
-<!-- CHANGE PASSWORD - BELOW, INSIDE PROFILE - WALLET NOT HERE -->
-<div class="card-white">
-<h3>🔑 Change Password</h3>
-<input id="oldPass" class="input" type="password" placeholder="Old Password">
-<input id="newPass" class="input" type="password" placeholder="New Password">
-<input id="confirmPass" class="input" type="password" placeholder="Confirm New Password">
-<button class="btn-nav green" style="width:100%;justify-content:center;padding:12px" onclick="changePassword()">Update Password</button>
-<p id="passMsg" style="font-size:12px;margin-top:6px"></p>
+<!-- SELL -->
+<div id="sellSection" class="page hidden">
+  <h3>💼 Sell on GamMarket</h3>
+  <div class="card" style="background:#fffbeb;border:1px solid #fde68a"><b id="sellBizName">🏪 My Store</b><br><span class="small">Status: <b id="sellSubStatus">Checking...</b></span><br><span class="small">Next Due: <b id="sellNextDue">-</b> • Wallet: D<span id="sellWallet">0</span> • Fee: D<span id="sellDue">300</span></span><br><button class="btn" style="margin-top:10px" onclick="simulatePay()">💰 Pay Fee - Activate 31 Days</button></div>
+  <div id="sellPayGate"></div>
+  <div id="sellInner">
+    <div class="card"><h3>Add Product</h3>
+      <select id="prodCategory" class="input"><option>Men</option><option>Women</option><option>Shoes</option><option>Kids</option><option>Cars</option><option>House</option><option>Electronics</option><option>Food</option><option>Other</option></select>
+      <input id="prodName" class="input" placeholder="Product name e.g. Jordan 1">
+      <input id="prodPrice" class="input" type="number" placeholder="Price D">
+      <input id="prodOldPrice" class="input" type="number" placeholder="Old Price D (for discount, optional)">
+      <input id="prodImage" class="input" placeholder="Image URL (optional)">
+      <label class="small">Or upload photo:</label>
+      <input type="file" accept="image/*" class="input" onchange="handleProductPhoto(event)" id="prodFile">
+      <img id="prodPreview" style="width:100%;border-radius:12px;display:none;margin-bottom:10px">
+      <div id="prodFileName" class="small" style="margin-bottom:10px"></div>
+      <div style="display:flex;gap:8px"><input id="prodLat" class="input" placeholder="Lat 13.4432"><input id="prodLng" class="input" placeholder="Lng -15.3101"></div>
+      <button class="btn" onclick="addProduct()">📤 Publish for Approval</button>
+    </div>
+    <div class="card"><h3>My Products</h3><div id="myProducts"></div></div>
+  </div>
 </div>
 
+<!-- CART -->
+<div id="cartSection" class="page hidden">
+  <h3>🛒 My Cart</h3>
+  <div id="cartList"></div>
+  <div class="card"><b>Total: D<span id="cartTotal">0</span></b><br><span class="small">Checkout uses Escrow - money held until you tap Received.</span><br><button class="btn" style="margin-top:10px" onclick="checkoutCart()">✅ Checkout with Escrow</button></div>
 </div>
-<div id="walletSection" style="display:none">
-<div class="card-white">
-<h3>💳 Wallet - Deposit/Withdraw/Transfer (Escrow)</h3>
-<p style="font-size:13px;line-height:1.7;background:#f8fafc;padding:10px;border-radius:10px;margin-bottom:8px">
-Balance: <b>D<span id="wBalance">0</span></b><br>
-Escrow Held: <b>D<span id="wEscrow">0</span></b><br>
-Due Fee: <b>D<span id="wDue">300</span></b><br>
-Last Paid: <span id="wLastPaid">Never</span><br>
-Next Auto-Deduct: <b><span id="wNextDue">-</span></b> <small>(31 days after last pay)</small><br>
-Subscription: <b><span id="wSubStatus">Not Active</span></b><br>
-Total Paid: D<span id="wTotal">0</span><br>
-Status: <span id="wStatus">Active</span>
-</p>
-<div style="margin-top:12px;border-top:1px solid #e2e8f0;padding-top:10px">
-<p style="font-size:12px;font-weight:700">⬇️ Deposit via Wave - Min D400 - Verify First</p>
-<p style="font-size:11px;color:#64748b">Send to Wave: <b id="waveNumberText">+220877859091</b> (GamMarket)</p>
-<div style="display:flex;gap:6px;flex-direction:column;margin-top:6px">
-<input id="depositAmount" class="input" type="number" placeholder="Deposit amount - Min D400" style="margin:0">
-<input id="depositTxId" class="input" placeholder="Wave Transaction ID" style="margin:0">
-<div style="display:flex;gap:6px">
-<button class="btn-nav btn-explore" style="flex:1;justify-content:center" onclick="copyWaveNumber()">📋 Copy Wave Number</button>
-<button class="btn-nav btn-map" style="flex:1;justify-content:center" onclick="simulateDeposit()">⬇️ Submit Deposit Request</button>
+
+<!-- ORDERS -->
+<div id="ordersSection" class="page hidden">
+  <h3>📦 My Orders</h3><div id="ordersList"></div>
+  <div class="card"><h3>🔒 Escrow</h3><div id="escrowList" class="small"></div></div>
 </div>
+
+<!-- CHATS -->
+<div id="chatsSection" class="page hidden">
+  <h3>💬 Chats</h3>
+  <div style="display:flex;gap:8px;margin:10px 0"><button id="tabAll" class="catPill active" onclick="setChatTab('all')">All</button><button id="tabActive" class="catPill" onclick="setChatTab('active')">Active</button><button id="tabReq" class="catPill" onclick="setChatTab('req')">Shops</button></div>
+  <div id="chatListView"><div id="chatListBox"></div></div>
+  <div id="chatOneView" class="hidden">
+    <div class="card" style="display:flex;align-items:center;gap:10px"><button onclick="backToChatList()">←</button><img id="chatHeadPic" src="https://via.placeholder.com/100" style="width:40px;height:40px;border-radius:50%;object-fit:cover"><b id="chatHeadName">Shop</b></div>
+    <div class="chatBox" id="chatBox"></div>
+    <div style="display:flex;gap:8px;margin-top:10px"><input id="chatMsg" class="input" style="margin:0" placeholder="Type message..."><button class="btn" style="width:80px" onclick="sendChatNew()">Send</button></div>
+  </div>
+  <div id="merchantProfileView" class="hidden"><button class="btnGray btn" style="margin-bottom:10px" onclick="backToChatList()">← Back</button><div id="merchantProfileBox"></div></div>
 </div>
-<p id="depositMsg" style="font-size:12px;margin-top:6px"></p>
+
+<!-- WALLET -->
+<div id="walletSection" class="page hidden">
+  <h3>💳 Wallet</h3>
+  <div class="card" style="background:linear-gradient(135deg,#0f5132,#16a34a);color:#fff"><small style="color:#dcfce7">Balance</small><div style="font-size:32px;font-weight:900">D<span id="wBalance">0</span></div><div class="small" style="color:#dcfce7">Subscription: <span id="wSubStatus">-</span> • Next: <span id="wNextDue">-</span></div></div>
+  <div class="card"><h3>Deposit via Wave</h3><p class="small">Send to Wave: <b id="waveNumberText">+220877859091</b> <button onclick="copyWaveNumber()">📋 Copy</button></p><input id="depositAmount" class="input" type="number" placeholder="Amount min D400"><input id="depositTxId" class="input" placeholder="Wave Transaction ID"><button class="btn" onclick="simulateDeposit()">Request Deposit</button><div id="depositMsg" class="small" style="margin-top:8px"></div></div>
+  <div class="card"><h3>Withdraw</h3><input id="withdrawAmount" class="input" type="number" placeholder="Min D400, 1% fee"><button class="btnDark btn" onclick="simulateWithdraw()">Request Withdraw</button><div id="withdrawMsg" class="small" style="margin-top:8px"></div><div id="myWithdraws" class="small" style="margin-top:10px"></div></div>
+  <div class="card"><h3>Transfer to Merchant (Escrow)</h3><input id="transferPhone" class="input" placeholder="Merchant phone"><input id="transferAmount" class="input" type="number" placeholder="Amount"><input id="transferNote" class="input" placeholder="Note e.g. 2 bags rice"><button class="btnBlue btn" onclick="transferToMerchant()">Send to Escrow</button><div id="transferMsg" class="small" style="margin-top:8px"></div></div>
+  <div class="card"><div class="small">Last Paid: <span id="wLastPaid">Never</span> • Total Paid: D<span id="wTotal">0</span> • Due: D<span id="wDue">300</span> • Escrow Held: D<span id="wEscrow">0</span> • Status: <span id="wStatus">-</span></div></div>
 </div>
-<div style="margin-top:12px;border-top:1px solid #e2e8f0;padding-top:10px">
-<button class="btn-nav btn-map" onclick="simulatePay()" style="width:100%;justify-content:center;padding:12px">💰 Pay Due Now - Activate Store for 31 Days</button>
-<p style="font-size:11px;color:#64748b;margin-top:4px">First payment starts your 31-day cycle. After 31 days, system auto-deducts next payment from wallet.</p>
+
+<!-- PROFILE -->
+<div id="profileSection" class="page hidden">
+  <div class="card center"><div class="profile-pic-wrap"><img id="profilePicPreview" src="https://via.placeholder.com/100"></div><br><label class="btnGray btn" style="display:block;padding:10px;border-radius:10px;margin-top:8px">📸 Change Photo<input type="file" accept="image/*" hidden onchange="uploadProfilePic(event)"></label><h3 id="pName" style="margin-top:10px">User</h3><p class="small" id="pPhone"></p><p class="small">🏪 <b id="pBiz"></b></p><p class="small">Status: <b id="pStatus"></b> • Joined: <span id="pJoined"></span></p></div>
+  <div class="card"><h3>Edit Profile</h3><input id="fullNameInput" class="input" placeholder="Full Name"><input id="bizNameInput" class="input" placeholder="Business Name e.g. Alpha Store"><button class="btn" onclick="updateProfile()">Save Profile</button></div>
+  <div class="card"><h3>🔐 Change Password</h3><input id="oldPass" type="password" class="input" placeholder="Old Password"><input id="newPass" type="password" class="input" placeholder="New Password"><input id="confirmPass" type="password" class="input" placeholder="Confirm New Password"><button class="btnDark btn" onclick="changePassword()">Update Password</button><div id="passMsg" class="small" style="margin-top:8px"></div></div>
+  <div class="card"><h3>Subscription</h3><div class="small">Last Paid: <span id="pLastPaid"></span><br>Next Due: <span id="pNextDue"></span><br>Has Paid: <span id="pHasPaid"></span><br>Due Now: D<span id="pDue"></span><br>Location: <span id="pLoc"></span></div><button class="btn" style="margin-top:10px" onclick="showSection('wallet')">💰 Go to Wallet</button></div>
+  <button class="btnRed btn" onclick="doLogout()">Logout</button>
 </div>
-<div style="margin-top:12px;border-top:1px solid #e2e8f0;padding-top:10px">
-<p style="font-size:12px;font-weight:700">💸 Withdraw - 1% Fee - Min D400 - Verify First</p>
-<div style="display:flex;gap:6px">
-<input id="withdrawAmount" class="input" type="number" placeholder="Amount - Min D400" style="margin:0">
-<button class="btn-nav btn-orders" onclick="simulateWithdraw()" style="background:#dc2626">Request Withdraw</button>
+
+<!-- SUPPORT -->
+<div id="supportChatSection" class="page hidden">
+  <h3>🆘 Support</h3><div class="card"><div class="small">Started: <span id="supportStarted"></span></div><div class="chatBox" id="supportChatBox" style="height:280px"></div><div style="display:flex;gap:8px;margin-top:10px"><input id="supportMsg" class="input" style="margin:0" placeholder="Type..." maxlength="400" oninput="document.getElementById('supportCount').innerText=this.value.length+'/400'"><button class="btn" style="width:70px" onclick="sendSupportChat()">Send</button></div><div class="small"><span id="supportCount">0/400</span> • <span onclick="supportQuick('I need help with my order')" style="color:#16a34a;font-weight:700">Order Help</span> • <span onclick="supportQuick('My deposit is not showing')" style="color:#16a34a;font-weight:700">Deposit</span></div></div>
 </div>
-<p id="withdrawMsg" style="font-size:12px;margin-top:6px"></p>
-<div id="myWithdraws" style="margin-top:8px;font-size:12px"></div>
+
+<!-- FINANCE / HELP / PRIVACY -->
+<div id="financeSection" class="page hidden"><h3>Finance</h3><div class="card"><div id="escrowList2" class="small"></div></div></div>
+<div id="helpSection" class="page hidden"><h3>Help</h3><div class="card small">1. Verify ID to sell/buy<br>2. Deposit via Wave to Wallet<br>3. Pay D300 first month, then D1000 monthly (auto-deduct after 31 days)<br>4. Buy with Escrow - tap Received to release money<br>5. Support is in Chats → Support</div></div>
+<div id="privacySection" class="page hidden"><h3>Privacy</h3><div class="card small">Your ID photos are only for verification. We never share your password. Escrow protects both buyer & seller.</div></div>
+
+<!-- SIDE MENU -->
+<div id="overlay" onclick="toggleMenu()" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:299;display:none"></div>
+<div id="sideMenu" style="position:fixed;top:0;left:-280px;width:270px;height:100%;background:#fff;z-index:300;transition:.3s;padding:20px;overflow-y:auto">
+  <div style="display:flex;align-items:center;gap:10px"><img id="menuPic" src="https://via.placeholder.com/100" style="width:50px;height:50px;border-radius:50%;object-fit:cover"><div><b id="mName">User</b><br><small id="mPhone"></small><br><small id="mBiz"></small></div></div>
+  <hr style="margin:14px 0">
+  <div onclick="toggleMenu();showSection('home')" style="padding:12px;font-weight:700">🏠 Home</div>
+  <div onclick="toggleMenu();showSection('profile')" style="padding:12px;font-weight:700">👤 Profile</div>
+  <div onclick="toggleMenu();showSection('wallet')" style="padding:12px;font-weight:700">💳 Wallet</div>
+  <div onclick="toggleMenu();showSection('sell')" style="padding:12px;font-weight:700">💼 Sell</div>
+  <div onclick="toggleMenu();showSection('orders')" style="padding:12px;font-weight:700">📦 Orders</div>
+  <div onclick="toggleMenu();showSection('chats')" style="padding:12px;font-weight:700">💬 Chats</div>
+  <div onclick="toggleMenu();showSection('supportChat')" style="padding:12px;font-weight:700">🆘 Support</div>
+  <div onclick="toggleMenu();showSection('help')" style="padding:12px;font-weight:700">❓ Help</div>
+  <div onclick="doLogout()" style="padding:12px;font-weight:700;color:#dc2626">🚪 Logout</div>
 </div>
-<div style="margin-top:12px;border-top:1px solid #e2e8f0;padding-top:10px">
-<p style="font-size:12px;font-weight:700">🔄 Transfer to Merchant (Escrow) - Verify First</p>
-<div style="display:flex;gap:6px;flex-direction:column">
-<input id="transferPhone" class="input" placeholder="Merchant phone" style="margin:0">
-<input id="transferAmount" class="input" type="number" placeholder="Amount D" style="margin:0">
-<input id="transferNote" class="input" placeholder="Note: Product name" style="margin:0">
-<button class="btn-nav btn-buy" style="width:100%;justify-content:center;padding:12px" onclick="transferToMerchant()">Transfer to Merchant - Escrow Hold</button>
-</div>
-<p id="transferMsg" style="font-size:12px;margin-top:6px"></p>
-<div class="escrow-card">
-<b style="font-size:11px">Escrow Flow:</b><br>
-<small style="font-size:11px;color:#92400e">Buyer wallet → Escrow hold → Buyer taps Received → 100% to merchant</small>
-</div>
-</div>
-</div>
-</div>
-<div id="chatsSection" style="display:none">
-<div class="card-white" style="padding:0;overflow:hidden">
-<div id="chatListView">
-<div style="padding:14px 14px 0"><h3>Messages</h3></div>
-<div class="tq-tabs">
-<b id="tabAll" class="on" onclick="setChatTab('all')">All chats</b>
-<b id="tabActive" onclick="setChatTab('active')">Active</b>
-<b id="tabReq" onclick="setChatTab('req')">Requests</b>
-</div>
-<div id="chatListBox" style="padding:0 10px 10px"></div>
-</div>
-<div id="chatOneView" style="display:none">
-<div class="tq-head" onclick="openMerchantProfile(currentChatPhone)">
-<button onclick="event.stopPropagation();backToChatList()" style="border:none;background:none;font-size:24px">‹</button>
-<img id="chatHeadPic" src="https://via.placeholder.com/100">
-<div style="flex:1">
-<b id="chatHeadName">Name</b><br>
-<small id="chatHeadSub" style="color:#22c55e">● Active now • Tap to view profile</small>
-</div>
-<span style="font-size:20px">⋮</span>
-</div>
-<div id="chatBox" class="chat-box" style="height:340px"></div>
-<div style="display:flex;gap:6px;padding:10px">
-<input id="chatMsg" class="input" placeholder="Type to merchant..." style="margin:0">
-<button class="btn-nav btn-chat" onclick="sendChatNew()">Send</button>
-</div>
-</div>
-<div id="merchantProfileView" style="display:none;padding:12px;max-height:75vh;overflow-y:auto">
-<button onclick="backToChatOne()" style="border:none;background:none;font-size:22px">‹ Back to Chat</button>
-<div id="merchantProfileBox"></div>
-</div>
-</div>
-</div>
-<div id="supportChatSection" style="display:none">
-<div class="card-white" style="padding:0;overflow:hidden">
-<div class="support-head">
-<button onclick="showSection('home')" style="border:none;background:none;font-size:22px;cursor:pointer">‹</button>
-<b style="flex:1">GamMarket Assistant</b>
-<span>👍</span>
-<span onclick="showSection('home')" style="cursor:pointer">✕</span>
-</div>
-<div style="text-align:center;font-size:11px;color:#94a3b8;padding:8px">— Chat started at <span id="supportStarted">now</span> —</div>
-<div id="supportChatBox" style="height:340px;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px"></div>
-<div class="support-quick">
-<button onclick="supportQuick('Order problem')">🛍️ Order Problem</button>
-<button onclick="supportQuick('Payment')">💳 Payment</button>
-<button onclick="supportQuick('Verification')">🪪 Verification</button>
-<button class="green" onclick="supportQuick('Please connect me to a human')">👤 Talk to Human</button>
-</div>
-<div style="display:flex;gap:6px;padding:10px;border-top:1px solid #e2e8f0">
-<input id="supportMsg" class="input" placeholder="Type your message" maxlength="400" oninput="document.getElementById('supportCount').innerText=this.value.length+'/400'" style="margin:0">
-<button onclick="sendSupportChat()" style="background:#0f7a3f;color:#fff;border:none;border-radius:50%;width:44px;height:44px;font-size:18px;cursor:pointer">➤</button>
-</div>
-<div style="text-align:right;font-size:11px;color:#94a3b8;padding:0 10px 8px"><span id="supportCount">0/400</span></div>
-</div>
-</div>
-<div id="ordersSection" style="display:none">
-<div class="card-white">
-<h3>📦 My Orders - Escrow - Tap Received</h3>
-<div id="ordersList"></div>
-</div>
-</div>
-<div id="financeSection" style="display:none">
-<div class="card-white">
-<h3>💰 Finance Panel</h3>
-<table style="width:100%;font-size:12px;border-collapse:collapse">
-<tr><th style="border:1px solid #e2e8f0;padding:6px">Type</th><th style="border:1px solid #e2e8f0;padding:6px">Amount</th></tr>
-<tr><td style="border:1px solid #e2e8f0;padding:6px">First 2 Months</td><td style="border:1px solid #e2e8f0;padding:6px">D300 / month</td></tr>
-<tr><td style="border:1px solid #e2e8f0;padding:6px">After First 2 Months</td><td style="border:1px solid #e2e8f0;padding:6px">D1000 / month</td></tr>
-<tr><td style="border:1px solid #e2e8f0;padding:6px">Min Deposit</td><td style="border:1px solid #e2e8f0;padding:6px">D400 via Wave +220877859091</td></tr>
-<tr><td style="border:1px solid #e2e8f0;padding:6px">Min Withdraw</td><td style="border:1px solid #e2e8f0;padding:6px">D400 - Admin Approval</td></tr>
-<tr><td style="border:1px solid #e2e8f0;padding:6px">Withdrawal Fee</td><td style="border:1px solid #e2e8f0;padding:6px">1% (D4 per D400)</td></tr>
-<tr><td style="border:1px solid #e2e8f0;padding:6px">Escrow Seller</td><td style="border:1px solid #e2e8f0;padding:6px">100%</td></tr>
-<tr><td style="border:1px solid #e2e8f0;padding:6px">Escrow Platform</td><td style="border:1px solid #e2e8f0;padding:6px">0%</td></tr>
-</table>
-<div id="escrowList" style="margin-top:10px;font-size:12px"></div>
-</div>
-</div>
-<div id="helpSection" style="display:none">
-<div class="card-white">
-<h3>❓ Help Center - All Rules</h3>
-<div style="font-size:13px;line-height:1.7;color:#334155">
-<b>1. Verify First:</b> New user MUST verify ID before Deposit, Withdraw, Buy, Sell, Transfer.<br>
-<b>2. Business Name:</b> Set Business Name in Profile (e.g. Jallow Enterprise). Shows on Sell top + products + merchant profile.<br>
-<b>3. Pay Before Sell:</b> Pay D300 first to activate store. Then you can post products.<br>
-<b>4. Auto-Deduct:</b> Day you pay = Day 1. After 31 days system auto-deducts D300/D1000 from wallet. If wallet low → Blocked.<br>
-<b>5. Deposit:</b> Min D400 via Wave +220877859091.<br>
-<b>6. Withdraw:</b> Min D400, 1% fee, Admin approval.<br>
-<b>7. Escrow:</b> Money held until buyer taps Received → 100% to merchant.
-</div>
-</div>
-</div>
-<div id="privacySection" style="display:none">
-<div class="card-white">
-<h3>🔒 Privacy & Rules</h3>
-<div style="font-size:12px;line-height:1.7;color:#334155">
-<b>1. Verification:</b> Verify ID to use wallet, buy, sell. No auto-verify.<br>
-<b>2. Business Name:</b> Each merchant has a Business Name shown to buyers.<br>
-<b>3. Monthly Fee:</b> First 2 months D300, then D1000. Auto-deduct every 31 days from wallet.<br>
-<b>4. Pay Before Sell:</b> No payment = No sell.<br>
-<b>5. Withdrawal:</b> 1% fee, Min D400, Admin approval.<br>
-<b>6. Escrow:</b> 100% seller, 0% platform.<br>
-<b>7. Deposit:</b> Min D400 via Wave.
-</div>
-</div>
-</div>
-</div>
-<div id="verifyModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;align-items:center;justify-content:center;padding:16px">
-<div class="card-white" style="width:100%;max-width:380px;margin:0">
-<h3>🪪 Verify ID - One Time Only</h3>
-<p style="font-size:12px;color:#64748b">Upload ID Card front + back.</p>
-<label style="font-size:12px;font-weight:700">ID Front</label>
-<input type="file" id="idFront" accept="image/*" class="input">
-<label style="font-size:12px;font-weight:700">ID Back</label>
-<input type="file" id="idBack" accept="image/*" class="input">
-<button class="btn-nav green" style="width:100%;justify-content:center;padding:12px" onclick="submitVerification()">Submit For Approval</button>
-<button class="btn-nav" style="width:100%;justify-content:center;background:#e2e8f0;color:#111;margin-top:6px" onclick="closeVerifyModal()">Close</button>
-<p id="verifyMsg" style="font-size:12px"></p>
-</div>
-</div>
-<div id="installBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#0f7a3f;color:#fff;padding:12px;text-align:center;z-index:3000;font-size:13px">
-🛒 Add GamMarket to Home Screen!
-<button onclick="installApp()" style="background:#facc15;border:none;padding:8px 14px;border-radius:10px;font-weight:800;margin-left:8px">Install</button>
-<button onclick="document.getElementById('installBanner').style.display='none'" style="background:none;border:none;color:#fff;font-size:18px;margin-left:8px">✕</button>
-<div id="installHint" style="font-size:11px;margin-top:4px;opacity:.9"></div>
-</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottomNav">
+  <button class="navItem active" onclick="navTo('home',this)"> <span>🏠</span>Home</button>
+  <button class="navItem" onclick="navTo('mapSec',this)"> <span>📍</span>Map</button>
+  <button class="navItem" onclick="navTo('sell',this)"> <span>💼</span>Sell</button>
+  <button class="navItem" onclick="navTo('orders',this)"> <span>📦</span>Orders</button>
+  <button class="navItem" onclick="navTo('chats',this)"> <span>💬</span>Chat</button>
+  <button class="navItem" onclick="navTo('profile',this)"> <span>👤</span>Profile</button>
+</nav>
+
+<!-- VERIFY MODAL -->
+<div class="modal" id="verifyModal"><div class="modalBox"><h3>Verify Your ID</h3><p class="small" style="margin:8px 0">Upload front + back of ID. Admin approves in 24h.</p><label class="small">ID Front</label><input type="file" id="idFront" accept="image/*" class="input"><label class="small">ID Back</label><input type="file" id="idBack" accept="image/*" class="input"><div id="verifyMsg" class="small"></div><button class="btn" onclick="submitVerification()">Submit for Approval</button><button class="btnGray btn" style="margin-top:8px" onclick="closeVerifyModal()">Cancel</button></div></div>
 <script>
 const SUPABASE_URL = "https://tfnhgzblgtmlsejukebw.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRmbmhnemJsZ3RtbHNlanVrZWJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyMjAxMjQsImV4cCI6MjEwNzc5NjEyNH0.YOAIghREhWRlFykKu55Ug4MlXQWAKsDpqYWj722sFGQ";
 const SUPA_H = {"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Content-Type":"application/json"};
 const WAVE_NUMBER = "+220877859091";
-const MIN_DEPOSIT = 400;
-const MIN_WITHDRAW = 400;
-const FIRST_MONTH_FEE = 300;
-const MONTHLY_FEE = 1000;
-const WITHDRAW_FEE_RATE = 0.01;
-const SUB_CYCLE_DAYS = 31;
+const MIN_DEPOSIT = 400, MIN_WITHDRAW = 400, FIRST_MONTH_FEE = 300, MONTHLY_FEE = 1000, WITHDRAW_FEE_RATE = 0.01, SUB_CYCLE_DAYS = 31;
+const SESSION_TIMEOUT = 48*60*60*1000;
+let activeCat = 'All';
 let tempProductImageBase64 = null;
-function isVerifiedUser(u){ if(!u) return false; return !!u.verified; }
+
+function getUsers(){ try{ return JSON.parse(localStorage.getItem('gm_users')||'[]'); }catch(e){ return []; } }
+function setUsers(u){ try{ localStorage.setItem('gm_users', JSON.stringify(u)); }catch(e){} }
+function getCurrent(){ try{ return JSON.parse(localStorage.getItem('gm_currentUser')||'null'); }catch(e){ return null; } }
+function setCurrent(u){ try{ localStorage.setItem('gm_currentUser', JSON.stringify(u)); }catch(e){ alert('Quota! Try smaller photo'); } }
+function isVerifiedUser(u){ return u && !!u.verified; }
 function getBiz(u){ if(!u) return ""; return (u.businessName || u.business_name || "").trim(); }
-function getBizDisplay(u){ let b = getBiz(u); return b || (u ? (u.name || u.phone) : "Store"); }
+function getBizDisplay(u){ let b=getBiz(u); return b || (u ? (u.name||u.phone) : "Store"); }
+function touchSession(){ try{ localStorage.setItem('gm_lastActivity', Date.now().toString()); }catch(e){} }
+['click','keydown','touchstart','scroll'].forEach(ev=>{ document.addEventListener(ev, touchSession, {passive:true}); });
+
 function requireVerified(action){
   let cur = getCurrent();
   if(!cur){ alert('Login first!'); return false; }
-  if(!isVerifiedUser(cur)){
-    alert('🔴 Verify your ID first to '+action+'!\n\nTap 🔴 Unverified badge at top → Upload ID → Wait for approval.');
-    if(cur.verification_status !== 'pending') onBadgeTap();
-    return false;
-  }
+  if(!isVerifiedUser(cur)){ alert('🔴 Verify your ID first to '+action+'!\nTap 🔴 Unverified badge at top → Upload ID → Wait for approval.'); if(cur.verification_status!=='pending') onBadgeTap(); return false; }
   return true;
 }
-function getDueFee(u){
-  if(!u) return FIRST_MONTH_FEE;
-  let c = u.createdAt || u.joinedAt || Date.now();
-  let age = Math.floor((Date.now()-c)/86400000);
-  let paid = u.hasPaidBefore || (u.totalPaid && u.totalPaid > 0);
-  if(!paid || age <= 60) return FIRST_MONTH_FEE;
-  return MONTHLY_FEE;
-}
-function getNextDueDate(u){ if(!u || !u.lastPaid) return null; return new Date(u.lastPaid + SUB_CYCLE_DAYS*86400000); }
-function getDaysSincePaid(u){ if(!u || !u.lastPaid) return 9999; return Math.floor((Date.now()-u.lastPaid)/86400000); }
-function isSubscriptionActive(u){
-  if(!u) return false;
-  if(!u.hasPaidBefore || !u.lastPaid) return false;
-  return getDaysSincePaid(u) < SUB_CYCLE_DAYS;
-}
-function getSubStatusText(u){
-  if(!u) return "Not Active";
-  if(!u.hasPaidBefore) return "Not Active - Pay D"+getDueFee(u)+" to Activate";
-  if(isSubscriptionActive(u)){ let left = SUB_CYCLE_DAYS - getDaysSincePaid(u); return "✅ Active - "+left+" days left"; }
-  return "🔴 Expired - Pay to Reactivate";
-}
+function getDueFee(u){ if(!u) return FIRST_MONTH_FEE; let c=u.createdAt||u.joinedAt||Date.now(); let age=Math.floor((Date.now()-c)/86400000); let paid=u.hasPaidBefore||(u.totalPaid&&u.totalPaid>0); if(!paid||age<=60) return FIRST_MONTH_FEE; return MONTHLY_FEE; }
+function getNextDueDate(u){ if(!u||!u.lastPaid) return null; return new Date(u.lastPaid + SUB_CYCLE_DAYS*86400000); }
+function getDaysSincePaid(u){ if(!u||!u.lastPaid) return 9999; return Math.floor((Date.now()-u.lastPaid)/86400000); }
+function isSubscriptionActive(u){ if(!u) return false; if(!u.hasPaidBefore||!u.lastPaid) return false; return getDaysSincePaid(u) < SUB_CYCLE_DAYS; }
+function getSubStatusText(u){ if(!u) return "Not Active"; if(!u.hasPaidBefore) return "Not Active - Pay D"+getDueFee(u)+" to Activate"; if(isSubscriptionActive(u)){ let left=SUB_CYCLE_DAYS-getDaysSincePaid(u); return "✅ Active - "+left+" days left"; } return "🔴 Expired - Pay to Reactivate"; }
 function compressImage(file, maxSize, quality, callback){
-  let reader = new FileReader();
-  reader.onload = function(e){
-    let img = new Image();
-    img.onload = function(){
-      let canvas = document.createElement('canvas');
-      let w = img.width, h = img.height;
-      if(w > h){ if(w > maxSize){ h *= maxSize/w; w = maxSize; } }
-      else { if(h > maxSize){ w *= maxSize/h; h = maxSize; } }
-      canvas.width = w; canvas.height = h;
-      let ctx = canvas.getContext('2d');
-      ctx.drawImage(img,0,0,w,h);
-      callback(canvas.toDataURL('image/jpeg', quality));
-    };
-    img.src = e.target.result;
-  };
+  let reader=new FileReader();
+  reader.onload=function(e){ let img=new Image(); img.onload=function(){ let canvas=document.createElement('canvas'); let w=img.width,h=img.height; if(w>h){ if(w>maxSize){ h*=maxSize/w; w=maxSize; } } else { if(h>maxSize){ w*=maxSize/h; h=maxSize; } } canvas.width=w; canvas.height=h; let ctx=canvas.getContext('2d'); ctx.drawImage(img,0,0,w,h); callback(canvas.toDataURL('image/jpeg',quality)); }; img.src=e.target.result; };
   reader.readAsDataURL(file);
 }
-function getUsers(){ try{ return JSON.parse(localStorage.getItem('gm_users')||'[]'); } catch(e){ return []; } }
-function setUsers(u){ try{ localStorage.setItem('gm_users', JSON.stringify(u)); } catch(e){} }
-function getCurrent(){ try{ return JSON.parse(localStorage.getItem('gm_currentUser')||'null'); } catch(e){ return null; } }
-function setCurrent(u){ try{ localStorage.setItem('gm_currentUser', JSON.stringify(u)); } catch(e){ alert('Quota! Try smaller photo'); } }
-function oneTimeResetAlpha(){
-  try{
-    if(localStorage.getItem('gm_alpha_reset_done')==='yes') return;
-    let users = getUsers(); let changed = false;
-    users = users.map(u=>{
-      if(u.phone==='877859091' || u.phone==='+220877859091' || u.phone==='220877859091'){
-        if((u.wallet||0)>0){ u.wallet=0; u.totalPaid=0; changed=true; }
-      }
-      return u;
-    });
-    if(changed) setUsers(users);
-    let cur = getCurrent();
-    if(cur && (cur.phone==='877859091' || cur.phone==='+220877859091' || cur.phone==='220877859091')){
-      if((cur.wallet||0)>0){ cur.wallet=0; cur.totalPaid=0; setCurrent(cur); }
-    }
-    localStorage.setItem('gm_alpha_reset_done','yes');
-  }catch(e){}
-}
 function syncCurrent(){
-  let cur = getCurrent(); if(!cur) return null;
-  let users = getUsers();
-  let fresh = users.find(x=>x.phone===cur.phone);
-  if(fresh){
-    cur.verified = !!fresh.verified;
-    if(fresh.verification_status) cur.verification_status = fresh.verification_status;
-    cur.wallet = fresh.wallet ?? cur.wallet;
-    cur.lastPaid = fresh.lastPaid ?? cur.lastPaid;
-    cur.hasPaidBefore = fresh.hasPaidBefore ?? cur.hasPaidBefore;
-    cur.createdAt = fresh.createdAt || fresh.joinedAt || cur.createdAt;
-    cur.name = fresh.name || cur.name;
-    cur.businessName = fresh.businessName || fresh.business_name || cur.businessName || "";
-    cur.profilePic = fresh.profilePic || cur.profilePic;
-    cur.lat = fresh.lat ?? cur.lat;
-    cur.lng = fresh.lng ?? cur.lng;
-    setCurrent(cur);
-  }
+  let cur=getCurrent(); if(!cur) return null;
+  let users=getUsers(); let fresh=users.find(x=>x.phone===cur.phone);
+  if(fresh){ cur.verified=!!fresh.verified; if(fresh.verification_status) cur.verification_status=fresh.verification_status; cur.wallet=fresh.wallet??cur.wallet; cur.lastPaid=fresh.lastPaid??cur.lastPaid; cur.hasPaidBefore=fresh.hasPaidBefore??cur.hasPaidBefore; cur.createdAt=fresh.createdAt||fresh.joinedAt||cur.createdAt; cur.name=fresh.name||cur.name; cur.businessName=fresh.businessName||fresh.business_name||cur.businessName||""; cur.profilePic=fresh.profilePic||cur.profilePic; cur.lat=fresh.lat??cur.lat; cur.lng=fresh.lng??cur.lng; setCurrent(cur); }
   return cur;
 }
 function saveUserUpdate(cur){
   setCurrent(cur);
-  let users = getUsers();
-  let idx = users.findIndex(u=>u.phone===cur.phone);
-  if(idx >= 0){
-    users[idx].wallet = cur.wallet;
-    users[idx].lastPaid = cur.lastPaid;
-    users[idx].hasPaidBefore = cur.hasPaidBefore;
-    users[idx].totalPaid = cur.totalPaid;
-    users[idx].businessName = cur.businessName || users[idx].businessName || "";
-    users[idx].name = cur.name;
-    users[idx].subscriptionStart = cur.subscriptionStart;
-    users[idx].nextDue = cur.nextDue;
-    setUsers(users);
-  }
+  let users=getUsers(); let idx=users.findIndex(u=>u.phone===cur.phone);
+  if(idx>=0){ users[idx].wallet=cur.wallet; users[idx].lastPaid=cur.lastPaid; users[idx].hasPaidBefore=cur.hasPaidBefore; users[idx].totalPaid=cur.totalPaid; users[idx].businessName=cur.businessName||users[idx].businessName||""; users[idx].name=cur.name; users[idx].subscriptionStart=cur.subscriptionStart; users[idx].nextDue=cur.nextDue; setUsers(users); }
 }
 function checkAutoDeduct(){
-  let cur = getCurrent();
-  if(!cur || !cur.hasPaidBefore || !cur.lastPaid) return;
-  let days = getDaysSincePaid(cur);
-  if(days < SUB_CYCLE_DAYS) return;
-  let cycles = Math.floor(days / SUB_CYCLE_DAYS);
-  let due = getDueFee(cur);
-  let totalDue = due * cycles;
-  if((cur.wallet||0) >= totalDue){
-    cur.wallet -= totalDue;
-    cur.lastPaid = Date.now();
-    cur.subscriptionStart = cur.lastPaid;
-    cur.nextDue = cur.lastPaid + SUB_CYCLE_DAYS*86400000;
-    cur.totalPaid = (cur.totalPaid||0) + totalDue;
-    cur.hasPaidBefore = true;
-    saveUserUpdate(cur);
-    setTimeout(()=>alert('🔁 Auto-Deducted D'+totalDue+' for subscription ('+cycles+' cycle(s) x D'+due+').\nNext auto-deduct: '+new Date(cur.nextDue).toLocaleDateString()+'.'),800);
-  } else {
-    cur.subscriptionExpired = true;
-    saveUserUpdate(cur);
-  }
+  let cur=getCurrent(); if(!cur||!cur.hasPaidBefore||!cur.lastPaid) return;
+  let days=getDaysSincePaid(cur); if(days<SUB_CYCLE_DAYS) return;
+  let cycles=Math.floor(days/SUB_CYCLE_DAYS); let due=getDueFee(cur); let totalDue=due*cycles;
+  if((cur.wallet||0)>=totalDue){ cur.wallet-=totalDue; cur.lastPaid=Date.now(); cur.subscriptionStart=cur.lastPaid; cur.nextDue=cur.lastPaid+SUB_CYCLE_DAYS*86400000; cur.totalPaid=(cur.totalPaid||0)+totalDue; cur.hasPaidBefore=true; saveUserUpdate(cur); setTimeout(()=>alert('🔁 Auto-Deducted D'+totalDue+' for subscription ('+cycles+' cycle(s) x D'+due+').'),800); }
+  else { cur.subscriptionExpired=true; saveUserUpdate(cur); }
 }
 function renderBadge(){
-  let cur = syncCurrent() || getCurrent();
-  let badge = document.getElementById('verifyBadge');
-  let mPic = document.getElementById('menuPic');
-  let mName = document.getElementById('mName');
-  let mPhone = document.getElementById('mPhone');
-  let mBiz = document.getElementById('mBiz');
-  let pPreview = document.getElementById('profilePicPreview');
-  let sellDue = document.getElementById('sellDue');
-  let sellWallet = document.getElementById('sellWallet');
-  let pLoc = document.getElementById('pLoc');
-  if(cur){
-    if(mName) mName.textContent = cur.name || 'User';
-    if(mPhone) mPhone.textContent = cur.phone || '';
-    if(mBiz) mBiz.textContent = getBiz(cur) ? "🏪 "+getBiz(cur) : "";
-    if(mPic && cur.profilePic) mPic.src = cur.profilePic;
-    if(pPreview && cur.profilePic) pPreview.src = cur.profilePic;
-    if(sellDue) sellDue.textContent = getDueFee(cur);
-    if(sellWallet) sellWallet.textContent = cur.wallet || 0;
-    if(pLoc) pLoc.textContent = cur.lat ? Number(cur.lat).toFixed(4)+', '+Number(cur.lng).toFixed(4) : 'No pin yet';
-    if(badge){
-      if(isVerifiedUser(cur)){ badge.textContent='✅ Verified'; badge.className='badge green'; badge.onclick=null; badge.style.cursor='default'; }
-      else if(cur.verification_status==='pending'){ badge.textContent='🟡 Pending'; badge.className='badge'; badge.style.background='#facc15'; badge.style.color='#000'; badge.onclick=null; badge.style.cursor='default'; }
-      else { badge.textContent='🔴 Unverified'; badge.className='badge red'; badge.onclick=onBadgeTap; badge.style.cursor='pointer'; }
-    }
+  let cur=syncCurrent()||getCurrent(); if(!cur) return;
+  let badge=document.getElementById('verifyBadge');
+  let topW=document.getElementById('topWallet');
+  if(topW) topW.textContent='D'+(cur.wallet||0);
+  let tn=document.getElementById('topName'); if(tn) tn.textContent=cur.name||'User';
+  let tb=document.getElementById('topBiz'); if(tb) tb.textContent=getBiz(cur)||cur.phone||'';
+  let ta=document.getElementById('topAvatar'); if(ta&&cur.profilePic) ta.src=cur.profilePic;
+  let mPic=document.getElementById('menuPic'); if(mPic&&cur.profilePic) mPic.src=cur.profilePic;
+  let mName=document.getElementById('mName'); if(mName) mName.textContent=cur.name||'User';
+  let mPhone=document.getElementById('mPhone'); if(mPhone) mPhone.textContent=cur.phone||'';
+  let mBiz=document.getElementById('mBiz'); if(mBiz) mBiz.textContent=getBiz(cur)?"🏪 "+getBiz(cur):"";
+  let pPrev=document.getElementById('profilePicPreview'); if(pPrev&&cur.profilePic) pPrev.src=cur.profilePic;
+  let sellDue=document.getElementById('sellDue'); if(sellDue) sellDue.textContent=getDueFee(cur);
+  let sellWallet=document.getElementById('sellWallet'); if(sellWallet) sellWallet.textContent=cur.wallet||0;
+  let wNum=document.getElementById('waveNumberText'); if(wNum) wNum.textContent=WAVE_NUMBER;
+  if(badge){
+    if(isVerifiedUser(cur)){ badge.textContent='✅ Verified'; badge.className='badge green'; badge.onclick=null; }
+    else if(cur.verification_status==='pending'){ badge.textContent='🟡 Pending'; badge.className='badge yellow'; badge.onclick=null; }
+    else { badge.textContent='🔴 Unverified'; badge.className='badge red'; badge.onclick=onBadgeTap; }
   }
-  let wNum = document.getElementById('waveNumberText');
-  if(wNum) wNum.textContent = WAVE_NUMBER;
+  renderCartCount();
 }
 function toggleMenu(){
-  document.getElementById('sideMenu').classList.toggle('open');
-  document.getElementById('overlay').classList.toggle('show');
+  let m=document.getElementById('sideMenu'); let o=document.getElementById('overlay');
+  let open=m.style.left==='0px';
+  m.style.left=open?'-280px':'0px'; o.style.display=open?'none':'block';
+}
+function navTo(sec, el){
+  document.querySelectorAll('.navItem').forEach(n=>n.classList.remove('active'));
+  if(el) el.classList.add('active');
+  showSection(sec);
 }
 function showSection(s){
-  var map = {home:'homeSection', mapSec:'mapSec', sell:'sellSection', profile:'profileSection', wallet:'walletSection', orders:'ordersSection', chats:'chatsSection', supportChat:'supportChatSection', finance:'financeSection', help:'helpSection', privacy:'privacySection'};
-  for(var k in map){
-    var el = document.getElementById(map[k]);
-    if(el) el.style.display = (k===s) ? 'block' : 'none';
-  }
+  let map={home:'homeSection',mapSec:'mapSec',sell:'sellSection',cart:'cartSection',profile:'profileSection',wallet:'walletSection',orders:'ordersSection',chats:'chatsSection',supportChat:'supportChatSection',finance:'financeSection',help:'helpSection',privacy:'privacySection'};
+  for(let k in map){ let el=document.getElementById(map[k]); if(el) el.classList.toggle('hidden', k!==s); }
+  let sw=document.getElementById('searchWrap'); if(sw) sw.style.display=(s==='home')?'block':'none';
+  document.querySelectorAll('.navItem').forEach(n=>{
+    let txt=n.textContent.toLowerCase();
+    let active=(s==='home'&&txt.includes('home'))||(s==='mapSec'&&txt.includes('map'))||(s==='sell'&&txt.includes('sell'))||(s==='orders'&&txt.includes('orders'))||(s==='chats'&&txt.includes('chat'))||(s==='profile'&&txt.includes('profile'));
+    n.classList.toggle('active',active);
+  });
   if(s==='sell') renderSell();
   if(s==='profile') renderProfile();
   if(s==='wallet') renderWallet();
@@ -1140,146 +373,144 @@ function showSection(s){
   if(s==='supportChat') loadSupportChat();
   if(s==='orders') renderOrders();
   if(s==='finance') renderEscrowList();
+  if(s==='cart') renderCart();
+  window.scrollTo({top:0});
 }
-function initMap(){
-  setTimeout(()=>{
-    let mapEl = document.getElementById('map');
-    if(!mapEl || mapEl._leaflet_id) return;
-    let map = L.map('map').setView([13.4432,-15.3101],7);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-    let users = getUsers();
-    let list = document.getElementById('mapList');
-    let html = '';
-    users.forEach(u=>{
-      if(u.lat && u.lng){
-        L.marker([u.lat,u.lng]).addTo(map).bindPopup(`<b>${getBizDisplay(u)}</b><br>📍 ${Number(u.lat).toFixed(3)}, ${Number(u.lng).toFixed(3)}<br><button onclick="viewUser('${u.phone}')">Profile & Chat</button>`);
-        html += `🏪 ${getBizDisplay(u)} - ${Number(u.lat).toFixed(3)},${Number(u.lng).toFixed(3)}<br>`;
-      }
-    });
-    if(list) list.innerHTML = html || 'No merchant locations yet.';
-  },400);
+function setCat(c, el){
+  activeCat=c;
+  document.querySelectorAll('.catPill').forEach(p=>p.classList.remove('active'));
+  if(el) el.classList.add('active');
+  renderProducts();
 }
-function handleProductPhoto(e){
-  let file = e.target.files[0]; if(!file) return;
-  compressImage(file, 600, 0.7, function(c){
-    tempProductImageBase64 = c;
-    let p = document.getElementById('prodPreview');
-    p.src = c; p.style.display = 'block';
-    document.getElementById('prodFileName').textContent = '✅ Compressed to '+Math.round(c.length/1024)+'KB - Ready';
-  });
-}
-function normProduct(p){
-  return {
-    id:p.id, category:p.category||'Other', name:p.title||p.name||'Product',
-    price:p.price||0, oldPrice:p.old_price||p.oldPrice||0,
-    image:p.image||'https://via.placeholder.com/300',
-    seller:p.merchant_name||p.seller||'',
-    biz:p.business_name||p.businessName||p.merchant_name||'',
-    sellerPhone:p.merchant_phone||p.seller_phone||p.sellerPhone||p.phone||'',
-    lat:p.lat, lng:p.lng, approved:p.approved
-  };
-}
+function showDiscount(){ setCat('Discount', document.querySelector('.catPill.green')); showSection('home'); }
+function normProduct(p){ return {id:p.id, category:p.category||'Other', name:p.title||p.name||'Product', price:p.price||0, oldPrice:p.old_price||p.oldPrice||0, image:p.image||'https://via.placeholder.com/300', seller:p.merchant_name||p.seller||'', biz:p.business_name||p.businessName||p.merchant_name||'', sellerPhone:p.merchant_phone||p.seller_phone||p.sellerPhone||p.phone||'', lat:p.lat, lng:p.lng, approved:p.approved}; }
 async function fetchApprovedProducts(){
   try{
-    let res = await fetch(SUPABASE_URL+"/rest/v1/products?select=*&approved=eq.true&order=created_at.desc",{headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY}});
+    let res=await fetch(SUPABASE_URL+"/rest/v1/products?select=*&approved=eq.true&order=created_at.desc",{headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY}});
     if(!res.ok) return [];
-    let d = await res.json();
-    if(!Array.isArray(d)) return [];
-    return d.map(normProduct);
+    let d=await res.json(); if(!Array.isArray(d)) return []; return d.map(normProduct);
   }catch(e){ return []; }
 }
-function showDashboard(){ activeCat='All'; showSection('home'); renderProducts(); window.scrollTo({top:0,behavior:'smooth'}); }
-function showDiscount(){ activeCat='Discount'; showSection('home'); renderProducts(); setTimeout(()=>{let g=document.getElementById('productGrid'); if(g) g.scrollIntoView({behavior:'smooth'});},100); }
-const SESSION_TIMEOUT = 48*60*60*1000;
-function touchSession(){ try{ localStorage.setItem('gm_lastActivity', Date.now().toString()); }catch(e){} }
-['click','keydown','touchstart','scroll'].forEach(ev=>{ document.addEventListener(ev, touchSession, {passive:true}); });
-let activeCat = 'All';
-function setCat(c){ activeCat = c; document.querySelectorAll('.topTab').forEach(t=>{t.classList.toggle('active',t.textContent===c)}); renderProducts(); }
 async function renderProducts(){
-  let grid = document.getElementById('productGrid');
-  let noP = document.getElementById('noProducts');
-  let products = await fetchApprovedProducts();
-  let q = (document.getElementById('searchInput').value||'').toLowerCase();
-  let users = getUsers();
-  let f = products.filter(p=>{
+  let grid=document.getElementById('productGrid'); if(!grid) return;
+  let noP=document.getElementById('noProducts');
+  let products=await fetchApprovedProducts();
+  let q=(document.getElementById('searchInput').value||'').toLowerCase();
+  let users=getUsers();
+  let f=products.filter(p=>{
     if(q && !(p.name||'').toLowerCase().includes(q) && !(p.biz||'').toLowerCase().includes(q)) return false;
     if(activeCat==='All') return true;
     if(activeCat==='Discount'){ let o=Number(p.oldPrice||0); return o>0 && o>Number(p.price); }
-    let cat = (p.category||'').toLowerCase();
-    let name = (p.name||'').toLowerCase();
-    let a = activeCat.toLowerCase();
+    let cat=(p.category||'').toLowerCase(); let name=(p.name||'').toLowerCase(); let a=activeCat.toLowerCase();
     return cat===a || name.includes(a) || (a==='shoes' && (name.includes('jordan')||name.includes('sneaker')));
   });
-  if(f.length===0){ grid.innerHTML=''; if(noP){noP.style.display='block'; noP.textContent='No '+activeCat+' products yet.';} return; }
+  if(f.length===0){ grid.innerHTML=''; if(noP) noP.style.display='block'; return; }
   if(noP) noP.style.display='none';
-  grid.innerHTML = f.map(p=>{
-    let u = users.find(x=>x.phone===p.sellerPhone) || {};
-    let biz = p.biz || getBiz(u) || p.seller;
-    return `<div class="product"><img class="prod-img" src="${p.image}"><div class="info"><b>${p.name}</b><div style="font-size:11px;color:#0f7a3f;font-weight:700;margin-top:2px">🏪 ${biz}</div><div class="price">D${p.price} ${p.oldPrice&&Number(p.oldPrice)>Number(p.price)?`<s style="color:#94a3b8;font-size:12px;margin-left:6px">D${p.oldPrice}</s> <span style="background:#dc2626;color:#fff;padding:2px 6px;border-radius:10px;font-size:10px">-${Math.round((1-p.price/p.oldPrice)*100)}%</span>`:''}</div><div class="loc">📍 ${p.lat?Number(p.lat).toFixed(3)+', '+Number(p.lng).toFixed(3):'On Map'} | 🏪 ${biz}</div><div style="display:flex;gap:6px;margin-top:8px"><button class="btn-nav btn-buy" style="flex:1;justify-content:center;padding:8px;font-size:12px" onclick="buyProduct('${p.sellerPhone}','${String(p.name||'').replace(/'/g,"\\'")}',${p.price})">Buy Now</button><button class="btn-nav btn-chat" style="flex:1;justify-content:center;padding:8px;font-size:12px" onclick="startChatWith('${p.sellerPhone}')">💬 Chat</button></div></div></div>`;
+  grid.innerHTML=f.map(p=>{
+    let u=users.find(x=>x.phone===p.sellerPhone)||{};
+    let biz=p.biz||getBiz(u)||p.seller;
+    let disc=p.oldPrice&&Number(p.oldPrice)>Number(p.price)?Math.round((1-p.price/p.oldPrice)*100):0;
+    return `<div class="product">${disc?`<span class="discTag">-${disc}%</span>`:''}<img src="${p.image}" onclick="openMerchantProfile('${p.sellerPhone}')"><div class="prodBody"><b>${p.name}</b><div class="biz">🏪 ${biz}</div><div class="priceRow"><span class="price">D${p.price}</span>${p.oldPrice&&Number(p.oldPrice)>Number(p.price)?`<span class="oldPrice">D${p.oldPrice}</span>`:''}</div><div class="prodBtns"><button class="btnAdd" onclick="addToCart('${p.id}','${String(p.name||'').replace(/'/g,"\\'")}',${p.price},'${p.sellerPhone}','${String(p.image||'').replace(/'/g,"")}')">Add to Cart</button><button class="btnChat" onclick="startChatWith('${p.sellerPhone}')">Chat Seller</button></div><button class="btnBuy" style="width:100%;margin-top:6px" onclick="buyProduct('${p.sellerPhone}','${String(p.name||'').replace(/'/g,"\\'")}',${p.price})">Buy Now - Escrow</button></div></div>`;
   }).join('');
 }
+/* CART */
+function getCart(){ try{ return JSON.parse(localStorage.getItem('gm_cart')||'[]'); }catch(e){ return []; } }
+function setCart(c){ localStorage.setItem('gm_cart', JSON.stringify(c)); renderCartCount(); }
+function renderCartCount(){
+  let c=getCart(); let el=document.getElementById('cartCount');
+  if(el){ el.textContent=c.length; el.style.display=c.length?'flex':'none'; }
+}
+function addToCart(id,name,price,sellerPhone,image){
+  let cur=getCurrent(); if(!cur) return alert('Login first');
+  let cart=getCart();
+  if(cart.find(x=>x.id===id)){ alert('Already in cart'); showSection('cart'); return; }
+  cart.push({id,name,price,sellerPhone,image,qty:1});
+  setCart(cart); alert('✅ Added to cart: '+name); renderCartCount();
+}
+function removeFromCart(id){ let cart=getCart().filter(x=>x.id!==id); setCart(cart); renderCart(); }
+function renderCart(){
+  let div=document.getElementById('cartList'); if(!div) return;
+  let cart=getCart();
+  let total=cart.reduce((s,x)=>s+Number(x.price)* (x.qty||1),0);
+  let t=document.getElementById('cartTotal'); if(t) t.textContent=total;
+  if(cart.length===0){ div.innerHTML='<p class="small center" style="padding:20px">Cart is empty. Add products from Home.</p>'; return; }
+  div.innerHTML=cart.map(x=>`<div class="card" style="display:flex;gap:10px;align-items:center"><img src="${x.image}" style="width:60px;height:60px;border-radius:10px;object-fit:cover"><div style="flex:1"><b>${x.name}</b><br><b>D${x.price}</b><br><small>Seller ${x.sellerPhone}</small></div><button class="btnRed btn" style="width:auto;padding:8px 12px" onclick="removeFromCart('${x.id}')">✕</button></div>`).join('');
+}
+function checkoutCart(){
+  let cart=getCart(); if(cart.length===0) return alert('Cart empty');
+  let cur=getCurrent(); if(!requireVerified('checkout')) return;
+  let total=cart.reduce((s,x)=>s+Number(x.price),0);
+  if((cur.wallet||0)<total){ if(confirm('Low balance! Balance D'+(cur.wallet||0)+', total D'+total+'. Deposit?')) showSection('wallet'); return; }
+  if(!confirm('Checkout '+cart.length+' items for D'+total+'? Money held in Escrow until you tap Received.')) return;
+  cur.wallet-=total; saveUserUpdate(cur);
+  let orders=JSON.parse(localStorage.getItem('gm_orders')||'[]');
+  let escrows=JSON.parse(localStorage.getItem('gm_escrow')||'[]');
+  cart.forEach(item=>{
+    let users=getUsers(); let m=users.find(u=>u.phone===item.sellerPhone)||{};
+    let order={id:Date.now().toString()+Math.random().toString().slice(2,6), product:item.name, price:item.price, buyer:cur.phone, seller:item.sellerPhone, buyerName:cur.name||cur.phone, buyerBiz:getBiz(cur), sellerName:m.name||item.sellerPhone, sellerBiz:getBiz(m), status:'escrow - waiting delivery', created:Date.now(), escrowAmount:item.price};
+    orders.push(order); escrows.push({orderId:order.id, amount:item.price, buyer:cur.phone, seller:item.sellerPhone, status:'held', created:Date.now()});
+  });
+  localStorage.setItem('gm_orders', JSON.stringify(orders));
+  localStorage.setItem('gm_escrow', JSON.stringify(escrows));
+  setCart([]); alert('✅ Checkout done! Go to Orders → Tap Received.'); renderWallet(); showSection('orders');
+}
+/* MAP */
+function initMap(){
+  setTimeout(()=>{
+    let mapEl=document.getElementById('map');
+    if(!mapEl || mapEl._leaflet_id) return;
+    let map=L.map('map').setView([13.4432,-15.3101],7);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    let users=getUsers(); let html='';
+    users.forEach(u=>{
+      if(u.lat&&u.lng){
+        L.marker([u.lat,u.lng]).addTo(map).bindPopup(`<b>${getBizDisplay(u)}</b><br><button onclick="viewUser('${u.phone}')">Profile & Chat</button>`);
+        html+=`🏪 ${getBizDisplay(u)} - ${Number(u.lat).toFixed(3)},${Number(u.lng).toFixed(3)}<br>`;
+      }
+    });
+    let l1=document.getElementById('mapList'); if(l1) l1.innerHTML=html||'No merchant locations yet.';
+    let l2=document.getElementById('mapList2'); if(l2) l2.innerHTML=html||'No merchant locations yet.';
+  },400);
+}
+function handleProductPhoto(e){
+  let file=e.target.files[0]; if(!file) return;
+  compressImage(file,600,0.7,function(c){ tempProductImageBase64=c; let p=document.getElementById('prodPreview'); p.src=c; p.style.display='block'; document.getElementById('prodFileName').textContent='✅ Compressed to '+Math.round(c.length/1024)+'KB - Ready'; });
+}
+function viewUser(phone){ openMerchantProfile(phone); }
 function viewProduct(phone){ openMerchantProfile(phone); }
-function viewUser(phone){ viewProduct(phone); }
-function renderSell(){
-  let cur = syncCurrent() || getCurrent();
-  let inner = document.getElementById('sellInner');
-  let gate = document.getElementById('sellPayGate');
-  if(!cur) return;
-  checkAutoDeduct(); cur = getCurrent();
-  let biz = getBiz(cur);
-  let bizNameEl = document.getElementById('sellBizName');
-  if(bizNameEl) bizNameEl.textContent = "🏪 "+(biz || "My Store - Set Business Name in Profile");
-  let subEl = document.getElementById('sellSubStatus');
-  if(subEl) subEl.textContent = getSubStatusText(cur);
-  let nextEl = document.getElementById('sellNextDue');
-  if(nextEl){ let nd = getNextDueDate(cur); nextEl.textContent = nd ? nd.toLocaleDateString() : "Pay first to start 31 days"; }
-  if(document.getElementById('sellDue')) document.getElementById('sellDue').textContent = getDueFee(cur);
-  if(document.getElementById('sellWallet')) document.getElementById('sellWallet').textContent = cur.wallet || 0;
-  if(!isVerifiedUser(cur)){
-    if(gate){ gate.style.display='block'; gate.innerHTML='<div class="blocked-box">🔴 Unverified - Tap 🔴 Unverified badge to verify before you can sell.</div>'; }
-    if(inner) inner.style.display='none';
-    return;
-  }
-  if(!isSubscriptionActive(cur)){
-    if(gate){
-      gate.style.display='block';
-      let due = getDueFee(cur);
-      gate.innerHTML = `<div class="blocked-box" style="background:#fffbeb;border-color:#f59e0b;color:#92400e">💰 Pay Before You Can Sell!<br>Pay D${due} now to activate your store for 31 days.<br>Your 31 days start the day you pay.<br>After 31 days, system auto-deducts next payment.<br>Wallet: D${cur.wallet||0}<br><button class="btn-nav btn-map" style="margin-top:8px;width:100%;justify-content:center;padding:12px" onclick="simulatePay()">💰 Pay D${due} Now - Activate Store</button><br><small>Need money? Go Wallet → Deposit via Wave first.</small></div>`;
-    }
-    if(inner) inner.style.display='none';
-    return;
-  }
-  if(gate) gate.style.display='none';
-  if(inner) inner.style.display='block';
-  renderMyProducts();
+  function renderSell(){
+  let cur=syncCurrent()||getCurrent(); if(!cur) return;
+  checkAutoDeduct(); cur=getCurrent();
+  let biz=getBiz(cur);
+  let bn=document.getElementById('sellBizName'); if(bn) bn.textContent="🏪 "+(biz||"My Store - Set Business Name in Profile");
+  let ss=document.getElementById('sellSubStatus'); if(ss) ss.textContent=getSubStatusText(cur);
+  let nd=document.getElementById('sellNextDue'); if(nd){ let d=getNextDueDate(cur); nd.textContent=d?d.toLocaleDateString():"Pay first to start 31 days"; }
+  if(document.getElementById('sellDue')) document.getElementById('sellDue').textContent=getDueFee(cur);
+  if(document.getElementById('sellWallet')) document.getElementById('sellWallet').textContent=cur.wallet||0;
+  let gate=document.getElementById('sellPayGate'); let inner=document.getElementById('sellInner');
+  if(!isVerifiedUser(cur)){ if(gate){ gate.style.display='block'; gate.innerHTML='<div class="card" style="background:#fef2f2;border:1px solid #fecaca">🔴 Unverified - Tap 🔴 Unverified badge to verify before you can sell.</div>'; } if(inner) inner.style.display='none'; return; }
+  if(!isSubscriptionActive(cur)){ if(gate){ gate.style.display='block'; let due=getDueFee(cur); gate.innerHTML=`<div class="card" style="background:#fffbeb;border:1px solid #fde68a">💰 Pay Before You Can Sell!<br>Pay D${due} now to activate your store for 31 days.<br>Wallet: D${cur.wallet||0}<br><button class="btn" style="margin-top:8px" onclick="simulatePay()">💰 Pay D${due} Now - Activate Store</button><br><small>Need money? Go Wallet → Deposit via Wave first.</small></div>`; } if(inner) inner.style.display='none'; return; }
+  if(gate) gate.style.display='none'; if(inner) inner.style.display='block'; renderMyProducts();
 }
 function simulatePay(){
   if(!requireVerified('pay subscription')) return;
-  let cur = getCurrent();
-  let due = getDueFee(cur);
-  if((cur.wallet||0) < due){ alert('Low balance! Deposit first.\nWallet D'+(cur.wallet||0)+' - Need D'+due); showSection('wallet'); return; }
-  cur.wallet -= due;
-  cur.lastPaid = Date.now();
-  cur.subscriptionStart = Date.now();
-  cur.nextDue = Date.now() + SUB_CYCLE_DAYS*86400000;
-  cur.hasPaidBefore = true;
-  cur.totalPaid = (cur.totalPaid||0) + due;
-  cur.subscriptionExpired = false;
-  saveUserUpdate(cur);
+  let cur=getCurrent(); let due=getDueFee(cur);
+  if((cur.wallet||0)<due){ alert('Low balance! Deposit first.\nWallet D'+(cur.wallet||0)+' - Need D'+due); showSection('wallet'); return; }
+  cur.wallet-=due; cur.lastPaid=Date.now(); cur.subscriptionStart=Date.now(); cur.nextDue=Date.now()+SUB_CYCLE_DAYS*86400000; cur.hasPaidBefore=true; cur.totalPaid=(cur.totalPaid||0)+due; cur.subscriptionExpired=false; saveUserUpdate(cur);
   alert('✅ Paid D'+due+'!\nYour store is ACTIVE for 31 days.\nNext auto-deduct: '+new Date(cur.nextDue).toLocaleDateString());
   renderBadge(); renderWallet(); renderSell(); showSection('sell');
 }
-function copyWaveNumber(){ try{ navigator.clipboard.writeText(WAVE_NUMBER); alert('Copied: '+WAVE_NUMBER); } catch(e){ prompt('Copy Wave number:', WAVE_NUMBER); } }
+function copyWaveNumber(){ try{ navigator.clipboard.writeText(WAVE_NUMBER); alert('Copied: '+WAVE_NUMBER); }catch(e){ prompt('Copy Wave number:', WAVE_NUMBER); } }
 function simulateDeposit(){
   if(!requireVerified('deposit money')) return;
-  let msg = document.getElementById('depositMsg');
-  let amount = parseInt(document.getElementById('depositAmount').value);
-  let txId = (document.getElementById('depositTxId').value||'').trim();
-  if(!amount || amount < MIN_DEPOSIT){ if(msg){ msg.textContent='Minimum deposit is D'+MIN_DEPOSIT; msg.style.color='#dc2626'; } return; }
+  let msg=document.getElementById('depositMsg');
+  let amount=parseInt(document.getElementById('depositAmount').value);
+  let txId=(document.getElementById('depositTxId').value||'').trim();
+  if(!amount||amount<MIN_DEPOSIT){ if(msg){ msg.textContent='Minimum deposit is D'+MIN_DEPOSIT; msg.style.color='#dc2626'; } return; }
   if(!txId){ if(msg){ msg.textContent='Send D'+amount+' via Wave to '+WAVE_NUMBER+' first, then enter Tx ID.'; msg.style.color='#dc2626'; } return; }
-  let cur = getCurrent();
-  let reqs = JSON.parse(localStorage.getItem('gm_deposit_requests')||'[]');
-  reqs.push({phone:cur.phone, name:cur.name||cur.phone, biz:getBiz(cur), amount:amount, txId:txId, waveTo:WAVE_NUMBER, time:Date.now(), status:'pending'});
+  let cur=getCurrent();
+  let reqs=JSON.parse(localStorage.getItem('gm_deposit_requests')||'[]');
+  reqs.push({phone:cur.phone,name:cur.name||cur.phone,biz:getBiz(cur),amount:amount,txId:txId,waveTo:WAVE_NUMBER,time:Date.now(),status:'pending'});
   localStorage.setItem('gm_deposit_requests', JSON.stringify(reqs));
   if(msg){ msg.style.color='#16a34a'; msg.textContent='✅ Deposit request D'+amount+' sent! Admin will confirm.'; }
   document.getElementById('depositAmount').value=''; document.getElementById('depositTxId').value='';
@@ -1287,48 +518,47 @@ function simulateDeposit(){
 }
 function simulateWithdraw(){
   if(!requireVerified('withdraw money')) return;
-  let amount = parseInt(document.getElementById('withdrawAmount').value);
-  let msg = document.getElementById('withdrawMsg');
-  if(!amount || amount<=0){ msg.textContent='Enter valid amount!'; msg.style.color='#dc2626'; return; }
-  if(amount < MIN_WITHDRAW){ msg.textContent='Min withdraw D'+MIN_WITHDRAW; msg.style.color='#dc2626'; return; }
-  let cur = getCurrent();
-  if((cur.wallet||0) < amount){ msg.textContent='Insufficient balance! Balance D'+(cur.wallet||0); msg.style.color='#dc2626'; return; }
-  let fee = Math.ceil(amount*WITHDRAW_FEE_RATE);
-  let receive = amount - fee;
-  let reqs = JSON.parse(localStorage.getItem('gm_withdraw_requests')||'[]');
-  let dup = reqs.find(r=>r.phone===cur.phone && (!r.status || r.status==='pending'));
+  let amount=parseInt(document.getElementById('withdrawAmount').value);
+  let msg=document.getElementById('withdrawMsg');
+  if(!amount||amount<=0){ msg.textContent='Enter valid amount!'; msg.style.color='#dc2626'; return; }
+  if(amount<MIN_WITHDRAW){ msg.textContent='Min withdraw D'+MIN_WITHDRAW; msg.style.color='#dc2626'; return; }
+  let cur=getCurrent();
+  if((cur.wallet||0)<amount){ msg.textContent='Insufficient balance! Balance D'+(cur.wallet||0); msg.style.color='#dc2626'; return; }
+  let fee=Math.ceil(amount*WITHDRAW_FEE_RATE); let receive=amount-fee;
+  let reqs=JSON.parse(localStorage.getItem('gm_withdraw_requests')||'[]');
+  let dup=reqs.find(r=>r.phone===cur.phone && (!r.status||r.status==='pending'));
   if(dup){ msg.textContent='You already have pending withdraw D'+dup.amount; msg.style.color='#dc2626'; return; }
-  reqs.push({phone:cur.phone, name:cur.name||cur.phone, biz:getBiz(cur), amount:amount, fee:fee, receive:receive, time:Date.now(), status:'pending', walletDeducted:false});
+  reqs.push({phone:cur.phone,name:cur.name||cur.phone,biz:getBiz(cur),amount:amount,fee:fee,receive:receive,time:Date.now(),status:'pending',walletDeducted:false});
   localStorage.setItem('gm_withdraw_requests', JSON.stringify(reqs));
   msg.style.color='#16a34a'; msg.textContent='✅ Withdraw request D'+amount+' sent! Fee D'+fee+'. Receive D'+receive+' after Admin approves.';
   document.getElementById('withdrawAmount').value=''; renderWallet(); renderMyWithdraws();
 }
 function renderMyWithdraws(){
-  let div = document.getElementById('myWithdraws'); if(!div) return;
-  let cur = getCurrent(); if(!cur) return;
-  let reqs = JSON.parse(localStorage.getItem('gm_withdraw_requests')||'[]').filter(r=>r.phone===cur.phone);
+  let div=document.getElementById('myWithdraws'); if(!div) return;
+  let cur=getCurrent(); if(!cur) return;
+  let reqs=JSON.parse(localStorage.getItem('gm_withdraw_requests')||'[]').filter(r=>r.phone===cur.phone);
   if(reqs.length===0){ div.innerHTML=''; return; }
-  div.innerHTML = '<b>My Withdraw Requests:</b><br>'+reqs.slice(-3).reverse().map(r=>`D${r.amount} - Fee D${r.fee} - Receive D${r.receive} - <b>${r.status||'pending'}</b><br>`).join('');
+  div.innerHTML='<b>My Withdraw Requests:</b><br>'+reqs.slice(-3).reverse().map(r=>`D${r.amount} - Fee D${r.fee} - Receive D${r.receive} - <b>${r.status||'pending'}</b><br>`).join('');
 }
 function transferToMerchant(){
   if(!requireVerified('transfer money')) return;
-  let phone = document.getElementById('transferPhone').value.trim();
-  let amount = parseInt(document.getElementById('transferAmount').value);
-  let note = document.getElementById('transferNote').value.trim() || 'Transfer';
-  let msg = document.getElementById('transferMsg');
-  if(!phone || !amount){ msg.textContent='Enter merchant phone and amount!'; msg.style.color='#dc2626'; return; }
-  if(amount < 50){ msg.textContent='Min transfer D50!'; msg.style.color='#dc2626'; return; }
-  let cur = getCurrent();
+  let phone=document.getElementById('transferPhone').value.trim();
+  let amount=parseInt(document.getElementById('transferAmount').value);
+  let note=document.getElementById('transferNote').value.trim()||'Transfer';
+  let msg=document.getElementById('transferMsg');
+  if(!phone||!amount){ msg.textContent='Enter merchant phone and amount!'; msg.style.color='#dc2626'; return; }
+  if(amount<50){ msg.textContent='Min transfer D50!'; msg.style.color='#dc2626'; return; }
+  let cur=getCurrent();
   if(cur.phone===phone){ msg.textContent='Cannot transfer to yourself!'; msg.style.color='#dc2626'; return; }
-  if((cur.wallet||0) < amount){ msg.textContent='Insufficient balance! Balance D'+(cur.wallet||0); msg.style.color='#dc2626'; return; }
-  let users = getUsers(); let merchant = users.find(u=>u.phone===phone);
+  if((cur.wallet||0)<amount){ msg.textContent='Insufficient balance! Balance D'+(cur.wallet||0); msg.style.color='#dc2626'; return; }
+  let users=getUsers(); let merchant=users.find(u=>u.phone===phone);
   if(!merchant){ msg.textContent='Merchant not found!'; msg.style.color='#dc2626'; return; }
-  cur.wallet -= amount; saveUserUpdate(cur);
-  let orders = JSON.parse(localStorage.getItem('gm_orders')||'[]');
-  let order = {id:Date.now().toString(), product:note, price:amount, buyer:cur.phone, seller:phone, buyerName:cur.name||cur.phone, buyerBiz:getBiz(cur), sellerName:merchant.name||phone, sellerBiz:getBiz(merchant), status:'escrow - waiting delivery', created:Date.now(), escrowAmount:amount, note:note};
+  cur.wallet-=amount; saveUserUpdate(cur);
+  let orders=JSON.parse(localStorage.getItem('gm_orders')||'[]');
+  let order={id:Date.now().toString(),product:note,price:amount,buyer:cur.phone,seller:phone,buyerName:cur.name||cur.phone,buyerBiz:getBiz(cur),sellerName:merchant.name||phone,sellerBiz:getBiz(merchant),status:'escrow - waiting delivery',created:Date.now(),escrowAmount:amount,note:note};
   orders.push(order); localStorage.setItem('gm_orders', JSON.stringify(orders));
-  let escrows = JSON.parse(localStorage.getItem('gm_escrow')||'[]');
-  escrows.push({orderId:order.id, amount:amount, buyer:cur.phone, seller:phone, status:'held', created:Date.now()});
+  let escrows=JSON.parse(localStorage.getItem('gm_escrow')||'[]');
+  escrows.push({orderId:order.id,amount:amount,buyer:cur.phone,seller:phone,status:'held',created:Date.now()});
   localStorage.setItem('gm_escrow', JSON.stringify(escrows));
   msg.style.color='#16a34a'; msg.textContent='✅ Transfer D'+amount+' to '+(getBiz(merchant)||phone)+' held in Escrow!';
   document.getElementById('transferPhone').value=''; document.getElementById('transferAmount').value=''; document.getElementById('transferNote').value='';
@@ -1336,404 +566,293 @@ function transferToMerchant(){
 }
 function buyProduct(sellerPhone, productName, price){
   if(!requireVerified('buy products')) return;
-  let cur = getCurrent();
+  let cur=getCurrent();
   if(cur.phone===sellerPhone){ alert('Cannot buy your own product!'); return; }
-  if((cur.wallet||0) < price){ if(confirm('Low balance! Balance D'+(cur.wallet||0)+', price D'+price+'. Deposit?')){ showSection('wallet'); } return; }
+  if((cur.wallet||0)<price){ if(confirm('Low balance! Balance D'+(cur.wallet||0)+', price D'+price+'. Deposit?')){ showSection('wallet'); } return; }
   if(!confirm('Buy "'+productName+'" for D'+price+'? Money will go to escrow until you tap Received.')) return;
-  let users = getUsers(); let merchant = users.find(u=>u.phone===sellerPhone);
+  let users=getUsers(); let merchant=users.find(u=>u.phone===sellerPhone);
   if(!merchant){ alert('Merchant not found!'); return; }
-  cur.wallet -= price; saveUserUpdate(cur);
-  let orders = JSON.parse(localStorage.getItem('gm_orders')||'[]');
-  let order = {id:Date.now().toString(), product:productName, price:price, buyer:cur.phone, seller:sellerPhone, buyerName:cur.name||cur.phone, buyerBiz:getBiz(cur), sellerName:merchant.name||sellerPhone, sellerBiz:getBiz(merchant), status:'escrow - waiting delivery', created:Date.now(), escrowAmount:price};
+  cur.wallet-=price; saveUserUpdate(cur);
+  let orders=JSON.parse(localStorage.getItem('gm_orders')||'[]');
+  let order={id:Date.now().toString(),product:productName,price:price,buyer:cur.phone,seller:sellerPhone,buyerName:cur.name||cur.phone,buyerBiz:getBiz(cur),sellerName:merchant.name||sellerPhone,sellerBiz:getBiz(merchant),status:'escrow - waiting delivery',created:Date.now(),escrowAmount:price};
   orders.push(order); localStorage.setItem('gm_orders', JSON.stringify(orders));
-  let escrows = JSON.parse(localStorage.getItem('gm_escrow')||'[]');
-  escrows.push({orderId:order.id, amount:price, buyer:cur.phone, seller:sellerPhone, status:'held', created:Date.now()});
+  let escrows=JSON.parse(localStorage.getItem('gm_escrow')||'[]');
+  escrows.push({orderId:order.id,amount:price,buyer:cur.phone,seller:sellerPhone,status:'held',created:Date.now()});
   localStorage.setItem('gm_escrow', JSON.stringify(escrows));
   alert('✅ Bought! D'+price+' held in escrow. Go to Orders → Tap Received.');
   renderWallet(); renderOrders(); showSection('orders');
 }
 function markAsReceived(orderId){
-  let cur = getCurrent();
-  let orders = JSON.parse(localStorage.getItem('gm_orders')||'[]');
-  let order = orders.find(o=>o.id===orderId);
+  let cur=getCurrent();
+  let orders=JSON.parse(localStorage.getItem('gm_orders')||'[]');
+  let order=orders.find(o=>o.id===orderId);
   if(!order){ alert('Order not found!'); return; }
   if(order.buyer!==cur.phone){ alert('Only buyer can tap Received!'); return; }
   if(order.status!=='escrow - waiting delivery'){ alert('Already completed!'); return; }
   if(!confirm('Confirm you received "'+order.product+'" for D'+order.price+'? This will release 100% to merchant.')) return;
-  let users = getUsers();
-  let si = users.findIndex(u=>u.phone===order.seller);
-  if(si>=0){ users[si].wallet = (users[si].wallet||0) + order.price; }
+  let users=getUsers(); let si=users.findIndex(u=>u.phone===order.seller);
+  if(si>=0){ users[si].wallet=(users[si].wallet||0)+order.price; }
   setUsers(users);
   order.status='completed - received'; order.completedAt=Date.now(); order.releasedMerchant=order.price;
   localStorage.setItem('gm_orders', JSON.stringify(orders));
-  let escrows = JSON.parse(localStorage.getItem('gm_escrow')||'[]');
-  let esc = escrows.find(e=>e.orderId===orderId);
+  let escrows=JSON.parse(localStorage.getItem('gm_escrow')||'[]');
+  let esc=escrows.find(e=>e.orderId===orderId);
   if(esc){ esc.status='released'; esc.releasedAt=Date.now(); esc.merchantAmount=order.price; localStorage.setItem('gm_escrow', JSON.stringify(escrows)); }
   alert('✅ Received! Released D'+order.price+' to merchant.');
   renderWallet(); renderOrders(); renderEscrowList(); renderBadge();
 }
 async function uploadToSupabase(base64, fileName, bucket){
-  bucket = bucket || "ids";
-  let arr = base64.split(',');
-  let mime = arr[0].match(/:(.*?);/)[1];
-  let bstr = atob(arr[1]);
-  let n = bstr.length;
-  let u8 = new Uint8Array(n);
-  while(n--){ u8[n] = bstr.charCodeAt(n); }
-  let blob = new Blob([u8], {type: mime});
-  let path = fileName + '_' + Date.now() + '.jpg';
-  let res = await fetch(SUPABASE_URL + "/storage/v1/object/"+bucket+"/" + path, {method:"POST",headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Content-Type":"image/jpeg","x-upsert":"true"},body:blob});
+  bucket=bucket||"ids";
+  let arr=base64.split(','); let mime=arr[0].match(/:(.*?);/)[1]; let bstr=atob(arr[1]); let n=bstr.length; let u8=new Uint8Array(n); while(n--){ u8[n]=bstr.charCodeAt(n); }
+  let blob=new Blob([u8],{type:mime}); let path=fileName+'_'+Date.now()+'.jpg';
+  let res=await fetch(SUPABASE_URL+"/storage/v1/object/"+bucket+"/"+path,{method:"POST",headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY,"Content-Type":"image/jpeg","x-upsert":"true"},body:blob});
   if(!res.ok) throw new Error(await res.text());
-  return SUPABASE_URL + "/storage/v1/object/public/"+bucket+"/" + path;
+  return SUPABASE_URL+"/storage/v1/object/public/"+bucket+"/"+path;
 }
 async function addProduct(){
   if(!requireVerified('sell products')) return;
-  if(!isSubscriptionActive(getCurrent())){ alert('💰 Pay Before You Can Sell!\n\nPay D'+getDueFee(getCurrent())+' first to activate your store for 31 days.'); showSection('sell'); return; }
-  let name = document.getElementById('prodName').value.trim();
-  let price = document.getElementById('prodPrice').value.trim();
-  let oldPrice = document.getElementById('prodOldPrice') ? document.getElementById('prodOldPrice').value.trim() : '';
-  let url = document.getElementById('prodImage').value.trim();
-  let lat = parseFloat(document.getElementById('prodLat').value) || 13.4432;
-  let lng = parseFloat(document.getElementById('prodLng').value) || -15.3101;
-  if(!name || !price) return alert('Enter product name and price');
-  let cur = getCurrent();
-  let image = url || 'https://via.placeholder.com/300?text='+encodeURIComponent(name);
-  if(tempProductImageBase64){
-    try{ image = await uploadToSupabase(tempProductImageBase64, 'product', 'product-images'); }
-    catch(e){ alert('Photo upload failed: '+e.message); return; }
-  }
-  let cat = document.getElementById('prodCategory').value || 'Other';
-  let payload = {title:name, name:name, category:cat, price:Number(price), old_price:oldPrice?Number(oldPrice):null, image:image, merchant_name:cur.name||cur.phone, business_name:getBiz(cur), businessName:getBiz(cur), merchant_phone:cur.phone, seller_phone:cur.phone, seller:cur.name||cur.phone, lat:lat, lng:lng, approved:false};
-  try{
-    let res = await fetch(SUPABASE_URL+"/rest/v1/products",{method:"POST",headers:{...SUPA_H,"Prefer":"return=representation"},body:JSON.stringify(payload)});
-    if(!res.ok) throw new Error(await res.text());
-  }catch(e){ alert('Save failed: '+e.message); return; }
+  if(!isSubscriptionActive(getCurrent())){ alert('💰 Pay Before You Can Sell!\nPay D'+getDueFee(getCurrent())+' first to activate your store for 31 days.'); showSection('sell'); return; }
+  let name=document.getElementById('prodName').value.trim();
+  let price=document.getElementById('prodPrice').value.trim();
+  let oldPrice=document.getElementById('prodOldPrice')?document.getElementById('prodOldPrice').value.trim():'';
+  let url=document.getElementById('prodImage').value.trim();
+  let lat=parseFloat(document.getElementById('prodLat').value)||13.4432;
+  let lng=parseFloat(document.getElementById('prodLng').value)||-15.3101;
+  if(!name||!price) return alert('Enter product name and price');
+  let cur=getCurrent();
+  let image=url||'https://via.placeholder.com/300?text='+encodeURIComponent(name);
+  if(tempProductImageBase64){ try{ image=await uploadToSupabase(tempProductImageBase64,'product','product-images'); }catch(e){ alert('Photo upload failed: '+e.message); return; } }
+  let cat=document.getElementById('prodCategory').value||'Other';
+  let payload={title:name,name:name,category:cat,price:Number(price),old_price:oldPrice?Number(oldPrice):null,image:image,merchant_name:cur.name||cur.phone,business_name:getBiz(cur),businessName:getBiz(cur),merchant_phone:cur.phone,seller_phone:cur.phone,seller:cur.name||cur.phone,lat:lat,lng:lng,approved:false};
+  try{ let res=await fetch(SUPABASE_URL+"/rest/v1/products",{method:"POST",headers:{...SUPA_H,"Prefer":"return=representation"},body:JSON.stringify(payload)}); if(!res.ok) throw new Error(await res.text()); }catch(e){ alert('Save failed: '+e.message); return; }
   alert('Product sent for approval! Admin will approve, then it appears with your Business Name: '+(getBiz(cur)||cur.name));
-  tempProductImageBase64 = null;
-  document.getElementById('prodPreview').style.display='none';
-  document.getElementById('prodFileName').textContent='';
-  document.getElementById('prodName').value='';
-  document.getElementById('prodPrice').value='';
-  if(document.getElementById('prodOldPrice')) document.getElementById('prodOldPrice').value='';
+  tempProductImageBase64=null;
+  document.getElementById('prodPreview').style.display='none'; document.getElementById('prodFileName').textContent='';
+  document.getElementById('prodName').value=''; document.getElementById('prodPrice').value=''; if(document.getElementById('prodOldPrice')) document.getElementById('prodOldPrice').value='';
   document.getElementById('prodImage').value=''; document.getElementById('prodFile').value='';
   renderProducts(); renderMyProducts(); renderBadge();
 }
-async function deleteMyProduct(id){
-  if(!confirm('Delete this product?')) return;
-  try{ await fetch(SUPABASE_URL+"/rest/v1/products?id=eq."+id,{method:"DELETE",headers:SUPA_H}); }catch(e){}
-  renderMyProducts(); renderProducts();
-}
+async function deleteMyProduct(id){ if(!confirm('Delete this product?')) return; try{ await fetch(SUPABASE_URL+"/rest/v1/products?id=eq."+id,{method:"DELETE",headers:SUPA_H}); }catch(e){} renderMyProducts(); renderProducts(); }
 async function renderMyProducts(){
-  let div = document.getElementById('myProducts'); if(!div) return;
-  let cur = getCurrent(); if(!cur) return;
-  let list = [];
-  try{
-    let res = await fetch(SUPABASE_URL+"/rest/v1/products?select=*&seller_phone=eq."+encodeURIComponent(cur.phone)+"&order=created_at.desc",{headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY}});
-    if(res.ok){ list = await res.json(); }
-  }catch(e){}
-  if(!Array.isArray(list) || list.length===0){ div.innerHTML='<p style="font-size:12px;color:#64748b">No products yet.</p>'; return; }
-  div.innerHTML = '<b style="font-size:12px">My Products ('+list.length+') - 🏪 '+(getBiz(cur)||cur.name)+'</b>'+list.map(p=>{
-    let nm = p.title||p.name||'Product'; let op = p.old_price||0;
-    return `<div class="card-white" style="margin-top:6px;font-size:13px;display:flex;gap:8px;align-items:center"><img src="${p.image}" style="width:50px;height:50px;border-radius:8px;object-fit:cover"><div><b>${nm}</b> - D${p.price} ${op&&op>p.price?`<s>D${op}</s> -${Math.round((1-p.price/op)*100)}%`:''}<br><small>${p.approved?'✅ Approved - Live':'⏳ Pending Approval'}</small><br><button onclick="deleteMyProduct('${p.id}')" style="background:#ff4444;color:white;border:none;padding:7px 10px;border-radius:8px;width:100%;margin-top:6px">🗑 Delete</button></div></div>`;
-  }).join('');
+  let div=document.getElementById('myProducts'); if(!div) return;
+  let cur=getCurrent(); if(!cur) return;
+  let list=[];
+  try{ let res=await fetch(SUPABASE_URL+"/rest/v1/products?select=*&seller_phone=eq."+encodeURIComponent(cur.phone)+"&order=created_at.desc",{headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY}}); if(res.ok){ list=await res.json(); } }catch(e){}
+  if(!Array.isArray(list)||list.length===0){ div.innerHTML='<p class="small">No products yet.</p>'; return; }
+  div.innerHTML='<b class="small">My Products ('+list.length+') - 🏪 '+(getBiz(cur)||cur.name)+'</b>'+list.map(p=>{ let nm=p.title||p.name||'Product'; let op=p.old_price||0; return `<div class="card" style="margin-top:8px;font-size:13px;display:flex;gap:8px;align-items:center"><img src="${p.image}" style="width:50px;height:50px;border-radius:8px;object-fit:cover"><div><b>${nm}</b> - D${p.price} ${op&&op>p.price?`<s>D${op}</s> -${Math.round((1-p.price/op)*100)}%`:''}<br><small>${p.approved?'✅ Approved - Live':'⏳ Pending Approval'}</small><br><button onclick="deleteMyProduct('${p.id}')" style="background:#dc2626;color:white;border:none;padding:7px 10px;border-radius:8px;width:100%;margin-top:6px">🗑 Delete</button></div></div>`; }).join('');
 }
 function uploadProfilePic(event){
-  let file = event.target.files[0]; if(!file) return;
-  compressImage(file, 300, 0.6, function(c){
-    try{
-      let cur = getCurrent(); if(!cur) return;
-      cur.profilePic = c; setCurrent(cur);
-      let users = getUsers(); let idx = users.findIndex(u=>u.phone===cur.phone);
-      if(idx>=0){ users[idx].profilePic = c; setUsers(users); }
-      document.getElementById('profilePicPreview').src = c;
-      document.getElementById('menuPic').src = c;
-      alert('✅ Profile pic uploaded!');
-      renderBadge(); event.target.value='';
-    }catch(e){ alert('Upload error: '+e.message); }
-  });
+  let file=event.target.files[0]; if(!file) return;
+  compressImage(file,300,0.6,function(c){ try{ let cur=getCurrent(); if(!cur) return; cur.profilePic=c; setCurrent(cur); let users=getUsers(); let idx=users.findIndex(u=>u.phone===cur.phone); if(idx>=0){ users[idx].profilePic=c; setUsers(users); } document.getElementById('profilePicPreview').src=c; document.getElementById('menuPic').src=c; alert('✅ Profile pic uploaded!'); renderBadge(); event.target.value=''; }catch(e){ alert('Upload error: '+e.message); } });
 }
 function renderProfile(){
-  let cur = syncCurrent() || getCurrent(); if(!cur) return;
-  checkAutoDeduct(); cur = getCurrent();
-  document.getElementById('pPhone').textContent = cur.phone || '';
-  document.getElementById('pName').textContent = cur.name || '';
-  let pb = document.getElementById('pBiz');
-  if(pb) pb.textContent = getBiz(cur) || 'No Business Name yet - Add below';
-  document.getElementById('pStatus').textContent = isVerifiedUser(cur) ? 'Verified' : (cur.verification_status==='pending' ? 'Pending' : 'Unverified');
-  document.getElementById('pJoined').textContent = new Date(cur.createdAt||cur.joinedAt||Date.now()).toLocaleDateString();
-  document.getElementById('pLastPaid').textContent = cur.lastPaid ? new Date(cur.lastPaid).toLocaleDateString() : 'Never';
-  let pn = document.getElementById('pNextDue');
-  if(pn){ let nd = getNextDueDate(cur); pn.textContent = nd ? nd.toLocaleDateString()+' (Auto-deduct)' : 'Pay first'; }
-  document.getElementById('pHasPaid').textContent = cur.hasPaidBefore ? 'Yes' : 'No - First D300';
-  document.getElementById('pDue').textContent = getDueFee(cur);
-  document.getElementById('fullNameInput').value = cur.name || '';
-  let bi = document.getElementById('bizNameInput');
-  if(bi) bi.value = getBiz(cur) || '';
-  if(cur.profilePic){ document.getElementById('profilePicPreview').src = cur.profilePic; document.getElementById('menuPic').src = cur.profilePic; }
+  let cur=syncCurrent()||getCurrent(); if(!cur) return;
+  checkAutoDeduct(); cur=getCurrent();
+  document.getElementById('pPhone').textContent=cur.phone||'';
+  document.getElementById('pName').textContent=cur.name||'';
+  let pb=document.getElementById('pBiz'); if(pb) pb.textContent=getBiz(cur)||'No Business Name yet - Add below';
+  document.getElementById('pStatus').textContent=isVerifiedUser(cur)?'Verified':(cur.verification_status==='pending'?'Pending':'Unverified');
+  document.getElementById('pJoined').textContent=new Date(cur.createdAt||cur.joinedAt||Date.now()).toLocaleDateString();
+  document.getElementById('pLastPaid').textContent=cur.lastPaid?new Date(cur.lastPaid).toLocaleDateString():'Never';
+  let pn=document.getElementById('pNextDue'); if(pn){ let nd=getNextDueDate(cur); pn.textContent=nd?nd.toLocaleDateString()+' (Auto-deduct)':'Pay first'; }
+  document.getElementById('pHasPaid').textContent=cur.hasPaidBefore?'Yes':'No - First D300';
+  document.getElementById('pDue').textContent=getDueFee(cur);
+  document.getElementById('fullNameInput').value=cur.name||'';
+  let bi=document.getElementById('bizNameInput'); if(bi) bi.value=getBiz(cur)||'';
+  if(cur.profilePic){ document.getElementById('profilePicPreview').src=cur.profilePic; document.getElementById('menuPic').src=cur.profilePic; }
+  let pl=document.getElementById('pLoc'); if(pl) pl.textContent=cur.lat?Number(cur.lat).toFixed(4)+', '+Number(cur.lng).toFixed(4):'No pin yet';
   renderBadge();
 }
-function viewPublicProfile(){
-  let cur = getCurrent();
-  let div = document.getElementById('publicProfileView');
-  div.style.display = 'block';
-  div.innerHTML = `<h4>🏪 ${getBiz(cur)||cur.name}</h4><div style="display:flex;gap:12px;align-items:center;margin:10px 0"><div class="profile-pic-wrap"><img src="${cur.profilePic||'https://via.placeholder.com/100'}"></div><div><b>${cur.name||cur.phone}</b><br><small>${cur.phone}<br>📍 ${cur.lat?Number(cur.lat).toFixed(4)+', '+Number(cur.lng).toFixed(4):'No location yet'}</small></div></div><button class="btn-nav btn-explore" onclick="this.parentElement.style.display='none'">Close</button>`;
-}
 function renderWallet(){
-  let cur = syncCurrent() || getCurrent(); if(!cur) return;
-  checkAutoDeduct(); cur = getCurrent();
-  document.getElementById('wBalance').textContent = cur.wallet || 0;
-  document.getElementById('wDue').textContent = getDueFee(cur);
-  document.getElementById('wLastPaid').textContent = cur.lastPaid ? new Date(cur.lastPaid).toLocaleDateString() : 'Never';
-  document.getElementById('wTotal').textContent = cur.totalPaid || 0;
-  let nd = getNextDueDate(cur);
-  let wn = document.getElementById('wNextDue');
-  if(wn) wn.textContent = nd ? nd.toLocaleDateString() : 'Pay first';
-  let ws = document.getElementById('wSubStatus');
-  if(ws) ws.textContent = getSubStatusText(cur);
-  document.getElementById('wStatus').textContent = (cur.wallet||0) >= getDueFee(cur) ? 'Active' : 'Low Balance';
-  let orders = JSON.parse(localStorage.getItem('gm_orders')||'[]');
-  let escrowHeld = orders.filter(o=>o.buyer===cur.phone && o.status==='escrow - waiting delivery').reduce((s,o)=>s+o.price,0);
-  let escrowEl = document.getElementById('wEscrow');
-  if(escrowEl) escrowEl.textContent = escrowHeld;
+  let cur=syncCurrent()||getCurrent(); if(!cur) return;
+  checkAutoDeduct(); cur=getCurrent();
+  document.getElementById('wBalance').textContent=cur.wallet||0;
+  document.getElementById('wDue').textContent=getDueFee(cur);
+  document.getElementById('wLastPaid').textContent=cur.lastPaid?new Date(cur.lastPaid).toLocaleDateString():'Never';
+  document.getElementById('wTotal').textContent=cur.totalPaid||0;
+  let nd=getNextDueDate(cur); let wn=document.getElementById('wNextDue'); if(wn) wn.textContent=nd?nd.toLocaleDateString():'Pay first';
+  let ws=document.getElementById('wSubStatus'); if(ws) ws.textContent=getSubStatusText(cur);
+  document.getElementById('wStatus').textContent=(cur.wallet||0)>=getDueFee(cur)?'Active':'Low Balance';
+  let orders=JSON.parse(localStorage.getItem('gm_orders')||'[]');
+  let escrowHeld=orders.filter(o=>o.buyer===cur.phone&&o.status==='escrow - waiting delivery').reduce((s,o)=>s+o.price,0);
+  let escrowEl=document.getElementById('wEscrow'); if(escrowEl) escrowEl.textContent=escrowHeld;
   renderMyWithdraws();
 }
 function updateProfile(){
-  let cur = getCurrent();
-  let newName = document.getElementById('fullNameInput').value.trim();
-  let newBiz = document.getElementById('bizNameInput').value.trim();
+  let cur=getCurrent(); let newName=document.getElementById('fullNameInput').value.trim(); let newBiz=document.getElementById('bizNameInput').value.trim();
   if(!newName) return alert('Enter name');
-  cur.name = newName;
-  if(newBiz) cur.businessName = newBiz;
-  setCurrent(cur);
-  let users = getUsers(); let idx = users.findIndex(u=>u.phone===cur.phone);
-  if(idx>=0){ users[idx].name = cur.name; if(newBiz) users[idx].businessName = newBiz; setUsers(users); }
-  alert('✅ Profile updated! Business: '+(getBiz(cur)||'Not set'));
-  renderBadge(); renderProducts(); renderSell();
+  cur.name=newName; if(newBiz) cur.businessName=newBiz; setCurrent(cur);
+  let users=getUsers(); let idx=users.findIndex(u=>u.phone===cur.phone);
+  if(idx>=0){ users[idx].name=cur.name; if(newBiz) users[idx].businessName=newBiz; setUsers(users); }
+  alert('✅ Profile updated! Business: '+(getBiz(cur)||'Not set')); renderBadge(); renderProducts(); renderSell();
 }
-async function refreshVerification(){ await syncVerification(); renderProfile(); renderBadge(); alert('Verification refreshed!'); showSection('home'); }
 function changePassword(){
-  let cur = getCurrent();
-  if(!cur) return alert('Login first');
-  let oldP = document.getElementById('oldPass').value;
-  let newP = document.getElementById('newPass').value;
-  let conf = document.getElementById('confirmPass').value;
-  let msg = document.getElementById('passMsg');
-  let stored = cur.pass || cur.password || "";
-  if(stored && oldP !== stored){ msg.textContent='Old password wrong'; msg.style.color='red'; return; }
-  if(newP.length < 4){ msg.textContent='New password must be 4+ chars'; msg.style.color='red'; return; }
-  if(newP !== conf){ msg.textContent='Passwords do not match'; msg.style.color='red'; return; }
-  cur.pass = newP; cur.password = newP;
-  setCurrent(cur);
-  let users = getUsers();
-  let idx = users.findIndex(u=>u.phone===cur.phone);
-  if(idx>=0){ users[idx].pass=newP; users[idx].password=newP; setUsers(users); }
+  let cur=getCurrent(); if(!cur) return alert('Login first');
+  let oldP=document.getElementById('oldPass').value; let newP=document.getElementById('newPass').value; let conf=document.getElementById('confirmPass').value; let msg=document.getElementById('passMsg');
+  let stored=cur.pass||cur.password||"";
+  if(stored&&oldP!==stored){ msg.textContent='Old password wrong'; msg.style.color='red'; return; }
+  if(newP.length<4){ msg.textContent='New password must be 4+ chars'; msg.style.color='red'; return; }
+  if(newP!==conf){ msg.textContent='Passwords do not match'; msg.style.color='red'; return; }
+  cur.pass=newP; cur.password=newP; setCurrent(cur);
+  let users=getUsers(); let idx=users.findIndex(u=>u.phone===cur.phone); if(idx>=0){ users[idx].pass=newP; users[idx].password=newP; setUsers(users); }
   msg.textContent='✅ Password changed successfully!'; msg.style.color='green';
-  document.getElementById('oldPass').value='';
-  document.getElementById('newPass').value='';
-  document.getElementById('confirmPass').value='';
+  document.getElementById('oldPass').value=''; document.getElementById('newPass').value=''; document.getElementById('confirmPass').value='';
 }
-function doLogout(){
-  if(!confirm('Logout?')) return;
-  localStorage.removeItem('gm_currentUser');
-  localStorage.removeItem('gm_loginTime');
-  localStorage.removeItem('gm_lastActivity');
-  location.href='login.html';
-}
+function doLogout(){ if(!confirm('Logout?')) return; localStorage.removeItem('gm_currentUser'); localStorage.removeItem('gm_loginTime'); localStorage.removeItem('gm_lastActivity'); location.href='login.html'; }
 function logout(){ doLogout(); }
-function getChats(){ try{ return JSON.parse(localStorage.getItem('gm_chats')||'[]'); } catch(e){ return []; } }
-function setChats(c){ try{ localStorage.setItem('gm_chats', JSON.stringify(c)); } catch(e){ localStorage.setItem('gm_chats', JSON.stringify(c.slice(-20))); } }
-let currentChatPhone = null, chatTab = 'all';
+function renderOrders(){
+  let div=document.getElementById('ordersList'); if(!div) return;
+  let cur=getCurrent(); let orders=JSON.parse(localStorage.getItem('gm_orders')||'[]').filter(o=>o.buyer===cur.phone||o.seller===cur.phone);
+  if(orders.length===0){ div.innerHTML='<p class="small">No orders yet.</p>'; return; }
+  div.innerHTML=orders.map(o=>{ let isBuyer=o.buyer===cur.phone; let isEscrow=o.status==='escrow - waiting delivery'; return `<div class="card" style="font-size:12px;border:${isEscrow?'2px solid #f59e0b':'1px solid #e2e8f0'}"><b>${o.product}</b> - D${o.price}<br>Buyer: ${o.buyerBiz||o.buyerName||o.buyer} (${o.buyer})<br>Seller: 🏪 ${o.sellerBiz||o.sellerName||o.seller} (${o.seller})<br>Status: <b style="color:${isEscrow?'#d97706':'#16a34a'}">${o.status}</b><br>Date: ${new Date(o.created).toLocaleString()}<br>${isEscrow&&isBuyer?`<button class="btn" style="margin-top:8px" onclick="markAsReceived('${o.id}')">✅ Tap as Received - Release to Merchant</button>`:''}</div>`; }).join('');
+}
+function renderEscrowList(){
+  let escrows=JSON.parse(localStorage.getItem('gm_escrow')||'[]');
+  let html=escrows.length===0?'<p class="small">No escrow transactions yet.</p>':'<b>Escrow Transactions:</b><br>'+escrows.slice(-10).reverse().map(e=>`Order ${String(e.orderId).slice(-4)}: D${e.amount} Buyer ${e.buyer} → Seller ${e.seller} - ${e.status}<br>`).join('');
+  let d1=document.getElementById('escrowList'); if(d1) d1.innerHTML=html;
+  let d2=document.getElementById('escrowList2'); if(d2) d2.innerHTML=html;
+}
+  function getChats(){ try{ return JSON.parse(localStorage.getItem('gm_chats')||'[]'); }catch(e){ return []; } }
+function setChats(c){ try{ localStorage.setItem('gm_chats', JSON.stringify(c)); }catch(e){ localStorage.setItem('gm_chats', JSON.stringify(c.slice(-20))); } }
+let currentChatPhone=null, chatTab='all';
 function setChatTab(t){
-  chatTab = t;
-  document.getElementById('tabAll').className = t=='all' ? 'on' : '';
-  document.getElementById('tabActive').className = t=='active' ? 'on' : '';
-  document.getElementById('tabReq').className = t=='req' ? 'on' : '';
+  chatTab=t;
+  document.getElementById('tabAll').className=t=='all'?'catPill active':'catPill';
+  document.getElementById('tabActive').className=t=='active'?'catPill active':'catPill';
+  document.getElementById('tabReq').className=t=='req'?'catPill active':'catPill';
   renderChatList();
 }
 function getChatPartners(){
-  let cur = getCurrent(); let chats = getChats(); let map = {};
-  chats.forEach(c=>{
-    let other = c.from===cur.phone ? c.to : c.from;
-    if(other===cur.phone) return;
-    if(!map[other]) map[other] = {phone:other, last:c, unread:0, count:0};
-    map[other].last = c; map[other].count++;
-    if(c.to===cur.phone) map[other].unread++;
-  });
-  if(chatTab=='req'){
-    let users = getUsers();
-    users.forEach(u=>{ if(u.phone!==cur.phone && !map[u.phone]) map[u.phone]={phone:u.phone, last:{text:'Tap to start chat',time:Date.now()}, unread:0, count:0}; });
-  }
+  let cur=getCurrent(); let chats=getChats(); let map={};
+  chats.forEach(c=>{ let other=c.from===cur.phone?c.to:c.from; if(other===cur.phone) return; if(!map[other]) map[other]={phone:other,last:c,unread:0,count:0}; map[other].last=c; map[other].count++; if(c.to===cur.phone) map[other].unread++; });
+  if(chatTab=='req'){ let users=getUsers(); users.forEach(u=>{ if(u.phone!==cur.phone&&!map[u.phone]) map[u.phone]={phone:u.phone,last:{text:'Tap to start chat',time:Date.now()},unread:0,count:0}; }); }
   return Object.values(map).sort((a,b)=>b.last.time-a.last.time);
 }
 function renderChatList(){
-  let box = document.getElementById('chatListBox'); if(!box) return;
-  let list = getChatPartners();
-  if(chatTab=='active') list = list.filter(x=>x.count>0);
-  if(chatTab=='req') list = list.filter(x=>x.count==0);
-  if(list.length==0){ box.innerHTML='<p style="text-align:center;color:#94a3b8;padding:20px">No messages yet.<br>Tap Chat on a product to start.</p>'; return; }
-  box.innerHTML = list.map(p=>{
-    let u = getUsers().find(x=>x.phone==p.phone) || {};
-    let name = getBiz(u) || u.name || p.phone;
-    let pic = u.profilePic || 'https://via.placeholder.com/100';
-    return `<div class="tq-row" onclick="openChat('${p.phone}')"><div style="display:flex"><img src="${pic}" onclick="event.stopPropagation();openMerchantProfile('${p.phone}')"><div class="tq-dot"></div></div><div style="flex:1;min-width:0"><b>🏪 ${name}</b><div style="font-size:12px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.last.text||''}</div></div><div style="text-align:right"><small style="color:#94a3b8">${new Date(p.last.time).toLocaleDateString()}</small><br>${p.unread?`<span class="tq-badge">${p.unread}</span>`:''}</div></div>`;
+  let box=document.getElementById('chatListBox'); if(!box) return;
+  let list=getChatPartners();
+  if(chatTab=='active') list=list.filter(x=>x.count>0);
+  if(chatTab=='req') list=list.filter(x=>x.count==0);
+  if(list.length===0){ box.innerHTML='<p class="center small" style="padding:20px">No messages yet.<br>Tap Chat Seller on a product to start.</p>'; return; }
+  box.innerHTML=list.map(p=>{
+    let u=getUsers().find(x=>x.phone==p.phone)||{};
+    let name=getBiz(u)||u.name||p.phone;
+    let pic=u.profilePic||'https://via.placeholder.com/100';
+    return `<div class="card" style="display:flex;gap:10px;align-items:center" onclick="openChat('${p.phone}')"><img src="${pic}" style="width:44px;height:44px;border-radius:50%;object-fit:cover" onclick="event.stopPropagation();openMerchantProfile('${p.phone}')"><div style="flex:1;min-width:0"><b>🏪 ${name}</b><div class="small" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.last.text||''}</div></div><div style="text-align:right"><small class="small">${new Date(p.last.time).toLocaleDateString()}</small><br>${p.unread?`<span style="background:#dc2626;color:#fff;font-size:11px;padding:2px 7px;border-radius:10px">${p.unread}</span>`:''}</div></div>`;
   }).join('');
 }
 function openChat(phone){
-  currentChatPhone = phone;
-  let u = getUsers().find(x=>x.phone==phone) || {};
-  document.getElementById('chatListView').style.display='none';
-  document.getElementById('merchantProfileView').style.display='none';
-  document.getElementById('chatOneView').style.display='block';
-  document.getElementById('chatHeadPic').src = u.profilePic || 'https://via.placeholder.com/100';
-  document.getElementById('chatHeadName').textContent = getBiz(u) || u.name || phone;
+  currentChatPhone=phone;
+  let u=getUsers().find(x=>x.phone==phone)||{};
+  document.getElementById('chatListView').classList.add('hidden');
+  document.getElementById('merchantProfileView').classList.add('hidden');
+  document.getElementById('chatOneView').classList.remove('hidden');
+  document.getElementById('chatHeadPic').src=u.profilePic||'https://via.placeholder.com/100';
+  document.getElementById('chatHeadName').textContent=getBiz(u)||u.name||phone;
   loadChatOne();
 }
 function backToChatList(){
-  document.getElementById('chatOneView').style.display='none';
-  document.getElementById('merchantProfileView').style.display='none';
-  document.getElementById('chatListView').style.display='block';
+  document.getElementById('chatOneView').classList.add('hidden');
+  document.getElementById('merchantProfileView').classList.add('hidden');
+  document.getElementById('chatListView').classList.remove('hidden');
   renderChatList();
 }
 function backToChatOne(){
-  document.getElementById('merchantProfileView').style.display='none';
-  document.getElementById('chatOneView').style.display='block';
+  document.getElementById('merchantProfileView').classList.add('hidden');
+  document.getElementById('chatOneView').classList.remove('hidden');
 }
 function loadChatOne(){
-  let cur = getCurrent();
-  let box = document.getElementById('chatBox');
-  if(!box || !currentChatPhone) return;
-  let chats = getChats().filter(c=>(c.from===cur.phone && c.to===currentChatPhone) || (c.from===currentChatPhone && c.to===cur.phone));
-  if(chats.length==0){ box.innerHTML='<p style="text-align:center;color:#94a3b8;margin-top:20px">No messages yet.<br>Say hi to the merchant!</p>'; return; }
-  box.innerHTML = chats.map(m=>`<div class="msg ${m.from===cur.phone?'me':'them'}">${m.text}<br><small style="font-size:10px;opacity:.7">${new Date(m.time).toLocaleTimeString()}</small></div>`).join('');
-  box.scrollTop = box.scrollHeight;
+  let cur=getCurrent(); let box=document.getElementById('chatBox');
+  if(!box||!currentChatPhone) return;
+  let chats=getChats().filter(c=>(c.from===cur.phone&&c.to===currentChatPhone)||(c.from===currentChatPhone&&c.to===cur.phone));
+  if(chats.length===0){ box.innerHTML='<p class="center small" style="margin-top:20px">No messages yet.<br>Say hi to the merchant!</p>'; return; }
+  box.innerHTML=chats.map(m=>`<div class="msg ${m.from===cur.phone?'me':'them'}">${m.text}<br><small style="font-size:10px;opacity:.7">${new Date(m.time).toLocaleTimeString()}</small></div>`).join('');
+  box.scrollTop=box.scrollHeight;
 }
 function sendChatNew(){
-  let cur = getCurrent();
-  let inp = document.getElementById('chatMsg');
-  let text = inp.value.trim();
-  if(!text || !currentChatPhone) return;
-  let chats = getChats();
-  chats.push({from:cur.phone, to:currentChatPhone, text, time:Date.now()});
-  setChats(chats); inp.value=''; loadChatOne();
+  let cur=getCurrent(); let inp=document.getElementById('chatMsg'); let text=inp.value.trim();
+  if(!text||!currentChatPhone) return;
+  let chats=getChats(); chats.push({from:cur.phone,to:currentChatPhone,text,time:Date.now()}); setChats(chats); inp.value=''; loadChatOne();
 }
 function loadChat(){ renderChatList(); }
 async function openMerchantProfile(phone){
   if(!phone) return;
-  currentChatPhone = phone;
-  let u = getUsers().find(x=>x.phone==phone) || {};
+  currentChatPhone=phone;
+  let u=getUsers().find(x=>x.phone==phone)||{};
   showSection('chats');
   setTimeout(async()=>{
-    document.getElementById('chatListView').style.display='none';
-    document.getElementById('chatOneView').style.display='none';
-    document.getElementById('merchantProfileView').style.display='block';
-    let box = document.getElementById('merchantProfileBox');
-    let pic = u.profilePic || 'https://via.placeholder.com/300';
-    let name = u.name || phone;
-    let biz = getBiz(u) || name;
-    box.innerHTML = `<img class="tq-prof-img" src="${pic}"><h2 style="margin:10px 0 2px">🏪 ${biz} ${u.verified?'✅':''}</h2><p style="font-size:13px;color:#64748b">Owner: ${name}</p><p style="color:#22c55e;font-size:13px">● Online now</p><p style="font-size:13px;color:#64748b">📍 ${u.lat?Number(u.lat).toFixed(3)+', '+Number(u.lng).toFixed(3):'Sukuta, Gambia'} • ⭐ 4.8 • Joined ${new Date(u.createdAt||Date.now()).getFullYear()}</p><p style="font-size:13px;background:#f8fafc;padding:10px;border-radius:10px;margin:10px 0">Trusted seller on GamMarket. All payments protected by Escrow.</p><h3 style="margin:14px 0 8px">All Products by ${biz} 👇</h3><div id="merchantProductsBox"><p style="color:#94a3b8">Loading...</p></div><div class="tq-sticky"><button class="btn-nav" style="flex:1;justify-content:center;background:#f1f5f9;color:#111" onclick="alert('Saved!')">❤️ Save Shop</button><button class="btn-nav btn-chat" style="flex:1;justify-content:center" onclick="backToChatOne()">💬 Chat now</button></div>`;
-    let prods = [];
-    try{
-      let r = await fetch(SUPABASE_URL+"/rest/v1/products?select=*&seller_phone=eq."+encodeURIComponent(phone)+"&approved=eq.true&order=created_at.desc",{headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY}});
-      if(r.ok) prods = await r.json();
-    }catch(e){}
-    let mp = document.getElementById('merchantProductsBox');
-    if(!prods.length){ mp.innerHTML='<p style="color:#94a3b8">No products yet from this store.</p>'; return; }
-    mp.innerHTML = prods.map(p=>{
-      let nm = (p.title||p.name||'Product').replace(/'/g,"\\'");
-      return `<div style="display:flex;gap:10px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:8px;margin-bottom:8px"><img src="${p.image}" style="width:70px;height:70px;border-radius:10px;object-fit:cover"><div style="flex:1"><b>${p.title||p.name}</b><br><b style="color:#0ea5e9">D${p.price}</b><div style="display:flex;gap:6px;margin-top:6px"><button class="btn-nav btn-chat" style="padding:6px;font-size:11px" onclick="backToChatOne()">💬 Chat</button><button class="btn-nav btn-buy" style="padding:6px;font-size:11px" onclick="buyProduct('${phone}','${nm}',${p.price})">🛒 Buy Now - Escrow</button></div></div></div>`;
-    }).join('');
+    document.getElementById('chatListView').classList.add('hidden');
+    document.getElementById('chatOneView').classList.add('hidden');
+    document.getElementById('merchantProfileView').classList.remove('hidden');
+    let box=document.getElementById('merchantProfileBox');
+    let pic=u.profilePic||'https://via.placeholder.com/300';
+    let name=u.name||phone; let biz=getBiz(u)||name;
+    box.innerHTML=`<div class="card center"><img src="${pic}" style="width:100px;height:100px;border-radius:50%;object-fit:cover"><h2 style="margin:10px 0 2px">🏪 ${biz} ${u.verified?'✅':''}</h2><p class="small">Owner: ${name}</p><p style="color:#22c55e;font-size:13px">● Online now</p><p class="small">📍 ${u.lat?Number(u.lat).toFixed(3)+', '+Number(u.lng).toFixed(3):'Sukuta, Gambia'} • ⭐ 4.8 • Joined ${new Date(u.createdAt||Date.now()).getFullYear()}</p><p class="small" style="background:#f8fafc;padding:10px;border-radius:10px;margin:10px 0">Trusted seller on GamMarket. All payments protected by Escrow.</p><div style="display:flex;gap:8px"><button class="btnGray btn" onclick="alert('Saved!')">❤️ Save Shop</button><button class="btn" onclick="backToChatOne()">💬 Chat now</button></div></div><h3 style="margin:14px 0 8px">All Products by ${biz} 👇</h3><div id="merchantProductsBox"><p class="small">Loading...</p></div>`;
+    let prods=[];
+    try{ let r=await fetch(SUPABASE_URL+"/rest/v1/products?select=*&seller_phone=eq."+encodeURIComponent(phone)+"&approved=eq.true&order=created_at.desc",{headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY}}); if(r.ok) prods=await r.json(); }catch(e){}
+    let mp=document.getElementById('merchantProductsBox');
+    if(!prods.length){ mp.innerHTML='<p class="small">No products yet from this store.</p>'; return; }
+    mp.innerHTML=prods.map(p=>{ let nm=(p.title||p.name||'Product').replace(/'/g,"\\'"); return `<div class="card" style="display:flex;gap:10px;align-items:center"><img src="${p.image}" style="width:70px;height:70px;border-radius:10px;object-fit:cover"><div style="flex:1"><b>${p.title||p.name}</b><br><b style="color:#16a34a">D${p.price}</b><div style="display:flex;gap:6px;margin-top:6px"><button class="btnGray btn" style="padding:6px;font-size:11px" onclick="backToChatOne()">💬 Chat</button><button class="btn" style="padding:6px;font-size:11px" onclick="buyProduct('${phone}','${nm}',${p.price})">🛒 Buy - Escrow</button></div></div></div>`; }).join('');
   },100);
 }
 function startChatWith(phone){ if(!phone) return; showSection('chats'); setTimeout(()=>{ renderChatList(); openChat(phone); },300); }
 async function loadSupportChat(){
-  let cur = getCurrent(); if(!cur) return;
-  let box = document.getElementById('supportChatBox'); if(!box) return;
-  let s = document.getElementById('supportStarted');
-  if(s) s.innerText = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  let cur=getCurrent(); if(!cur) return;
+  let box=document.getElementById('supportChatBox'); if(!box) return;
+  let s=document.getElementById('supportStarted'); if(s) s.innerText=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
   try{
-    let r = await fetch(SUPABASE_URL+"/rest/v1/support_messages?select=*&phone=eq."+encodeURIComponent(cur.phone)+"&order=created_at.asc",{headers:SUPA_H});
-    let rows = await r.json(); if(!Array.isArray(rows)) rows=[];
-    let html = `<div style="background:#f1f5f9;padding:10px 12px;border-radius:14px;max-width:85%;font-size:13px"><b>GamMarket Assistant</b><br>Welcome to GamMarket 👋 How can I support you?<br><small style="color:#94a3b8">Bot • Just now</small></div>`;
+    let r=await fetch(SUPABASE_URL+"/rest/v1/support_messages?select=*&phone=eq."+encodeURIComponent(cur.phone)+"&order=created_at.asc",{headers:SUPA_H});
+    let rows=await r.json(); if(!Array.isArray(rows)) rows=[];
+    let html=`<div style="background:#f1f5f9;padding:10px 12px;border-radius:14px;max-width:85%;font-size:13px"><b>GamMarket Assistant</b><br>Welcome to GamMarket 👋 How can I support you?<br><small class="small">Bot • Just now</small></div>`;
     rows.forEach(m=>{
-      if(m.name!=='Admin' && m.message && m.message!=='Support message'){ html += `<div style="background:#0ea5e9;color:#fff;padding:8px 12px;border-radius:14px;margin-left:auto;max-width:82%;font-size:13px"><b>You</b><br>${m.message}</div>`; }
-      if(m.reply){ html += `<div style="background:#f1f5f9;padding:10px 12px;border-radius:14px;max-width:85%;font-size:13px"><b>GamMarket Support</b><br>${m.reply}<br><small style="color:#94a3b8">Support</small></div>`; }
+      if(m.name!=='Admin'&&m.message&&m.message!=='Support message'){ html+=`<div style="background:#16a34a;color:#fff;padding:8px 12px;border-radius:14px;margin-left:auto;max-width:82%;font-size:13px"><b>You</b><br>${m.message}</div>`; }
+      if(m.reply){ html+=`<div style="background:#f1f5f9;padding:10px 12px;border-radius:14px;max-width:85%;font-size:13px"><b>GamMarket Support</b><br>${m.reply}<br><small class="small">Support</small></div>`; }
     });
-    box.innerHTML = html; box.scrollTop = box.scrollHeight;
-  }catch(e){ box.innerHTML='<p style="font-size:12px;color:#64748b">Could not load support chat.</p>'; }
+    box.innerHTML=html; box.scrollTop=box.scrollHeight;
+  }catch(e){ box.innerHTML='<p class="small">Could not load support chat.</p>'; }
 }
 async function sendSupportChat(){
-  let cur = getCurrent(); if(!cur) return alert('Login first');
-  let inp = document.getElementById('supportMsg');
-  let text = inp.value.trim(); if(!text) return;
+  let cur=getCurrent(); if(!cur) return alert('Login first');
+  let inp=document.getElementById('supportMsg'); let text=inp.value.trim(); if(!text) return;
   inp.value=''; document.getElementById('supportCount').innerText='0/400';
-  try{ await fetch(SUPABASE_URL+"/rest/v1/support_messages",{method:"POST",headers:{...SUPA_H,Prefer:"return=representation"},body:JSON.stringify({phone:cur.phone,name:cur.name||cur.phone,message:text,reply:null})}); }
-  catch(e){ alert('Send failed: '+e.message); return; }
+  try{ await fetch(SUPABASE_URL+"/rest/v1/support_messages",{method:"POST",headers:{...SUPA_H,Prefer:"return=representation"},body:JSON.stringify({phone:cur.phone,name:cur.name||cur.phone,message:text,reply:null})}); }catch(e){ alert('Send failed: '+e.message); return; }
   loadSupportChat();
 }
-function supportQuick(t){ let i = document.getElementById('supportMsg'); i.value = t; document.getElementById('supportCount').innerText = t.length+'/400'; sendSupportChat(); }
-setInterval(()=>{ let s = document.getElementById('supportChatSection'); if(s && s.style.display!=='none') loadSupportChat(); },4000);
-function renderOrders(){
-  let div = document.getElementById('ordersList'); if(!div) return;
-  let cur = getCurrent();
-  let orders = JSON.parse(localStorage.getItem('gm_orders')||'[]').filter(o=>o.buyer===cur.phone || o.seller===cur.phone);
-  if(orders.length===0){ div.innerHTML='<p style="color:#94a3b8;font-size:12px">No orders yet.</p>'; return; }
-  div.innerHTML = orders.map(o=>{
-    let isBuyer = o.buyer===cur.phone;
-    let isEscrow = o.status==='escrow - waiting delivery';
-    return `<div class="card-white" style="margin-top:8px;font-size:12px;border:${isEscrow?'2px solid #f59e0b':'1px solid #e2e8f0'}"><b>${o.product}</b> - D${o.price}<br>Buyer: ${o.buyerBiz||o.buyerName||o.buyer} (${o.buyer})<br>Seller: 🏪 ${o.sellerBiz||o.sellerName||o.seller} (${o.seller})<br>Status: <b style="color:${isEscrow?'#d97706':'#16a34a'}">${o.status}</b><br>Date: ${new Date(o.created).toLocaleString()}<br>${isEscrow&&isBuyer?`<button class="btn-nav btn-buy" style="width:100%;margin-top:8px;justify-content:center;padding:10px" onclick="markAsReceived('${o.id}')">✅ Tap as Received - Release to Merchant</button>`:''}</div>`;
-  }).join('');
-}
-function renderEscrowList(){
-  let div = document.getElementById('escrowList'); if(!div) return;
-  let escrows = JSON.parse(localStorage.getItem('gm_escrow')||'[]');
-  if(escrows.length===0){ div.innerHTML='<p style="color:#94a3b8">No escrow transactions yet.</p>'; return; }
-  div.innerHTML = '<b>Escrow Transactions:</b><br>'+escrows.slice(-10).reverse().map(e=>`Order ${String(e.orderId).slice(-4)}: D${e.amount} Buyer ${e.buyer} → Seller ${e.seller} - ${e.status}<br>`).join('');
-}
+function supportQuick(t){ let i=document.getElementById('supportMsg'); i.value=t; document.getElementById('supportCount').innerText=t.length+'/400'; sendSupportChat(); }
+setInterval(()=>{ let s=document.getElementById('supportChatSection'); if(s&&!s.classList.contains('hidden')) loadSupportChat(); },4000);
 async function fetchVerifiedFromSupabase(){
-  let cur = getCurrent(); if(!cur || !cur.phone) return null;
-  let rows = [];
-  try{
-    let r1 = await fetch(SUPABASE_URL+"/rest/v1/profiles?select=verified,is_verified,verification_status&phone=eq."+encodeURIComponent(cur.phone),{headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY}});
-    if(r1.ok){ let d = await r1.json(); if(Array.isArray(d)) rows.push(...d); }
-  }catch(e){}
-  try{
-    let r2 = await fetch(SUPABASE_URL+"/rest/v1/users?select=verified,is_verified,verification_status&phone=eq."+encodeURIComponent(cur.phone),{headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY}});
-    if(r2.ok){ let d = await r2.json(); if(Array.isArray(d)) rows.push(...d); }
-  }catch(e){}
+  let cur=getCurrent(); if(!cur||!cur.phone) return null;
+  let rows=[];
+  try{ let r1=await fetch(SUPABASE_URL+"/rest/v1/profiles?select=verified,is_verified,verification_status&phone=eq."+encodeURIComponent(cur.phone),{headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY}}); if(r1.ok){ let d=await r1.json(); if(Array.isArray(d)) rows.push(...d); } }catch(e){}
+  try{ let r2=await fetch(SUPABASE_URL+"/rest/v1/users?select=verified,is_verified,verification_status&phone=eq."+encodeURIComponent(cur.phone),{headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY}}); if(r2.ok){ let d=await r2.json(); if(Array.isArray(d)) rows.push(...d); } }catch(e){}
   if(rows.length===0) return null;
-  let pending = rows.find(r=>String(r.verification_status||'').toLowerCase()==='pending');
-  if(pending) return pending;
-  let verified = rows.find(r=>r.verified===true || r.is_verified===true || String(r.verification_status||'').toLowerCase()==='verified');
-  if(verified) return verified;
+  let pending=rows.find(r=>String(r.verification_status||'').toLowerCase()==='pending'); if(pending) return pending;
+  let verified=rows.find(r=>r.verified===true||r.is_verified===true||String(r.verification_status||'').toLowerCase()==='verified'); if(verified) return verified;
   return rows[0];
 }
 async function syncVerification(){
-  let row = await fetchVerifiedFromSupabase(); if(!row) return;
-  let cur = getCurrent(); if(!cur) return;
-  let isVer = row.verified===true || row.is_verified===true || String(row.verification_status||'').toLowerCase()==='verified';
-  let status = String(row.verification_status||'').toLowerCase() || (isVer?'verified':'unverified');
-  cur.verified = isVer; cur.verification_status = status;
-  setCurrent(cur);
-  let users = getUsers(); let idx = users.findIndex(u=>u.phone===cur.phone);
-  if(idx>=0){ users[idx].verified = isVer; users[idx].verification_status = status; setUsers(users); }
+  let row=await fetchVerifiedFromSupabase(); if(!row) return;
+  let cur=getCurrent(); if(!cur) return;
+  let isVer=row.verified===true||row.is_verified===true||String(row.verification_status||'').toLowerCase()==='verified';
+  let status=String(row.verification_status||'').toLowerCase()||(isVer?'verified':'unverified');
+  cur.verified=isVer; cur.verification_status=status; setCurrent(cur);
+  let users=getUsers(); let idx=users.findIndex(u=>u.phone===cur.phone);
+  if(idx>=0){ users[idx].verified=isVer; users[idx].verification_status=status; setUsers(users); }
   renderBadge();
 }
 function onBadgeTap(){
-  let cur = getCurrent();
-  if(cur && cur.verified) return;
-  if(cur && cur.verification_status==='pending'){ alert('Your ID is pending approval. Wait for Support.'); return; }
-  document.getElementById('verifyModal').style.display='flex';
+  let cur=getCurrent(); if(cur&&cur.verified) return;
+  if(cur&&cur.verification_status==='pending'){ alert('Your ID is pending approval. Wait for Support.'); return; }
+  document.getElementById('verifyModal').classList.add('open');
 }
-function closeVerifyModal(){ document.getElementById('verifyModal').style.display='none'; }
+function closeVerifyModal(){ document.getElementById('verifyModal').classList.remove('open'); }
 async function upsertVerification(phone, name, data){
   for(let table of ['users','profiles']){
     try{
-      let patchRes = await fetch(SUPABASE_URL+"/rest/v1/"+table+"?phone=eq."+encodeURIComponent(phone),{method:"PATCH",headers:{...SUPA_H,"Prefer":"return=representation"},body:JSON.stringify(data)});
-      let patched = [];
-      try{ patched = await patchRes.json(); }catch(e){}
-      if(!patchRes.ok) throw new Error(await patchRes.text());
-      if(!Array.isArray(patched) || patched.length===0){
-        let payload = {phone:phone, name:name||phone, full_name:name||phone, ...data};
+      let patchRes=await fetch(SUPABASE_URL+"/rest/v1/"+table+"?phone=eq."+encodeURIComponent(phone),{method:"PATCH",headers:{...SUPA_H,"Prefer":"return=representation"},body:JSON.stringify(data)});
+      let patched=[]; try{ patched=await patchRes.json(); }catch(e){}
+      if(!Array.isArray(patched)||patched.length===0){
+        let payload={phone:phone,name:name||phone,full_name:name||phone,...data};
         if(table==='users') delete payload.full_name;
         await fetch(SUPABASE_URL+"/rest/v1/"+table,{method:"POST",headers:{...SUPA_H,"Prefer":"return=representation"},body:JSON.stringify(payload)}).catch(()=>{});
       }
@@ -1741,66 +860,52 @@ async function upsertVerification(phone, name, data){
   }
 }
 async function submitVerification(){
-  let front = document.getElementById('idFront').files[0];
-  let back = document.getElementById('idBack').files[0];
-  let msg = document.getElementById('verifyMsg');
-  if(!front || !back){ msg.textContent='Select BOTH front and back ID photos'; msg.style.color='red'; return; }
-  msg.textContent='Compressing...'; msg.style.color='#0ea5e9';
-  let cur = getCurrent();
+  let front=document.getElementById('idFront').files[0];
+  let back=document.getElementById('idBack').files[0];
+  let msg=document.getElementById('verifyMsg');
+  if(!front||!back){ msg.textContent='Select BOTH front and back ID photos'; msg.style.color='red'; return; }
+  msg.textContent='Compressing...'; msg.style.color='#16a34a';
+  let cur=getCurrent();
   try{
-    let f1 = await new Promise(res=>compressImage(front,800,0.6,res));
-    let f2 = await new Promise(res=>compressImage(back,800,0.6,res));
+    let f1=await new Promise(res=>compressImage(front,800,0.6,res));
+    let f2=await new Promise(res=>compressImage(back,800,0.6,res));
     msg.textContent='Uploading front...';
-    let url1 = await uploadToSupabase(f1,'id_front_'+cur.phone,'ids');
+    let url1=await uploadToSupabase(f1,'id_front_'+cur.phone,'ids');
     msg.textContent='Uploading back...';
-    let url2 = await uploadToSupabase(f2,'id_back_'+cur.phone,'ids');
+    let url2=await uploadToSupabase(f2,'id_back_'+cur.phone,'ids');
     msg.textContent='Saving...';
     await upsertVerification(cur.phone, cur.name, {verification_status:'pending',verified:false,is_verified:false,id_front_url:url1,id_back_url:url2,id_photo:url1});
     cur.verification_status='pending'; cur.verified=false; setCurrent(cur);
-    let users = getUsers(); let idx = users.findIndex(u=>u.phone===cur.phone);
+    let users=getUsers(); let idx=users.findIndex(u=>u.phone===cur.phone);
     if(idx>=0){ users[idx].verification_status='pending'; users[idx].verified=false; setUsers(users); }
-    renderBadge();
-    msg.style.color='green'; msg.textContent='✅ Sent! Wait for Support approval. Badge is now 🟡 Pending.';
+    renderBadge(); msg.style.color='green'; msg.textContent='✅ Sent! Wait for Support approval. Badge is now 🟡 Pending.';
     setTimeout(closeVerifyModal,1200);
-  }catch(e){
-    msg.textContent='Failed: '+e.message.slice(0,150);
-    msg.style.color='red';
-  }
+  }catch(e){ msg.textContent='Failed: '+e.message.slice(0,150); msg.style.color='red'; }
 }
 (function init(){
-  oneTimeResetAlpha();
-  let _lastActive = parseInt(localStorage.getItem('gm_lastActivity') || localStorage.getItem('gm_loginTime') || '0');
-  if(_lastActive && (Date.now()-_lastActive) > SESSION_TIMEOUT){
-    localStorage.removeItem('gm_currentUser');
-    localStorage.removeItem('gm_loginTime');
-    localStorage.removeItem('gm_lastActivity');
-    alert('You were away for 48 hours. Please login again.');
-    location.href='login.html'; return;
+  let _lastActive=parseInt(localStorage.getItem('gm_lastActivity')||localStorage.getItem('gm_loginTime')||'0');
+  if(_lastActive&&(Date.now()-_lastActive)>SESSION_TIMEOUT){
+    localStorage.removeItem('gm_currentUser'); localStorage.removeItem('gm_loginTime'); localStorage.removeItem('gm_lastActivity');
+    alert('You were away for 48 hours. Please login again.'); location.href='login.html'; return;
   }
   touchSession();
-  let cur = getCurrent();
-  if(!cur){
-    let old = localStorage.getItem('user') || localStorage.getItem('gm_user');
-    if(old){ localStorage.setItem('gm_currentUser', old); cur = JSON.parse(old); }
-  }
+  let cur=getCurrent();
+  if(!cur){ let old=localStorage.getItem('user')||localStorage.getItem('gm_user'); if(old){ localStorage.setItem('gm_currentUser', old); cur=JSON.parse(old); } }
   if(!cur){ location.href='login.html'; return; }
   try{ localStorage.removeItem('gm_products'); }catch(e){}
-  syncCurrent(); checkAutoDeduct(); renderBadge(); renderProducts(); renderProfile(); renderWallet(); renderMyProducts(); renderOrders(); renderEscrowList();
+  syncCurrent(); checkAutoDeduct(); renderBadge(); renderProducts(); renderProfile(); renderWallet(); renderMyProducts(); renderOrders(); renderEscrowList(); renderCartCount();
   showSection('home');
   setTimeout(syncVerification, 600);
 })();
 </script>
 <script>
-let deferredPrompt = null;
-window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); deferredPrompt=e; document.getElementById('installBanner').style.display='block'; });
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); deferredPrompt=e; let b=document.getElementById('installBanner'); if(b) b.style.display='flex'; });
 function installApp(){
   if(deferredPrompt){ deferredPrompt.prompt(); deferredPrompt.userChoice.then(()=>{ deferredPrompt=null; document.getElementById('installBanner').style.display='none'; }); }
-  else{
-    let isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
-    document.getElementById('installHint').innerText = isIOS ? 'iPhone: Tap Share ⬆️ → Add to Home Screen' : 'Android: Tap ⋮ Menu → Add to Home Screen / Install app';
-  }
+  else{ let isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent); alert(isIOS?'iPhone: Tap Share ⬆️ → Add to Home Screen':'Android: Tap ⋮ Menu → Add to Home Screen / Install app'); }
 }
-setTimeout(()=>{ if(!window.matchMedia('(display-mode: standalone)').matches) document.getElementById('installBanner').style.display='block'; },3000);
+setTimeout(()=>{ if(!window.matchMedia('(display-mode: standalone)').matches){ let b=document.getElementById('installBanner'); if(b) b.style.display='flex'; } },3000);
 </script>
 </body>
 </html>
